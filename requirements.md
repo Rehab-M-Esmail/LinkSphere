@@ -46,18 +46,7 @@
 2. **Real-Time Delivery**:
    - Notifications should be delivered in real-time using WebSocket or similar technology. => to be discused
 
-### 4. Messaging
-
-1. **Direct Messaging**:
-   - Users can send direct messages to other users.
-   - Messages can include text, images, and emojis.
-2. **Group Chats**:
-   - Users can create and participate in group chats.
-3. **Message History**:
-   - Users can view their message history.
-   - Messages should be stored securely and encrypted.
-
-### 5. Friends and Followers
+### 4. Friends and Followers
 
 1. **Friend Requests**:
    - Users can send and accept friend requests.
@@ -140,8 +129,8 @@
    - Manages post creation, editing, and deletion.
 3. **Notification Service**:
    - Sends real-time notifications to users.
-4. **Messaging Service**:
-   - Handles direct messages and group chats.
+4. **Posts Feed**:
+   - Handles publishing posts feed.
 5. **Friend Service**:
    - Manages friend requests, followers, and friend lists.
 6. **Event Bus**:
