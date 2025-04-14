@@ -7,8 +7,3 @@ This is a Node.js-based API Gateway that proxies requests to backend microservic
 - Post Service
 - Comment Service (optional)
 
-## How to Run
-1. Configure URLs in `.env`
-2. Run: `npm install`
-3. Start: `npm start`
-
