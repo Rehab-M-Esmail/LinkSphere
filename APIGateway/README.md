@@ -5,5 +5,5 @@ This is a Node.js-based API Gateway that proxies requests to backend microservic
 ## Services
 - User Service
 - Post Service
-- Comment Service (optional)
+- Comment Service 
 
