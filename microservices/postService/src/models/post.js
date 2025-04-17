@@ -25,25 +25,26 @@ likes: {
     type: Number,
     default: 0
 },
-comments :
-{
-    type : {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        },
-        content: {
-            type: String,
-            required: true,
-            trim: true,
-            maxlength: [500, 'Comment cannot exceed 500 characters']
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
+comments: {
+    type: [
+        {
+            userId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            content: {
+                type: String,
+                required: true,
+                trim: true,
+                maxlength: [500, 'Comment cannot exceed 500 characters']
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
         }
-    },
+    ],
     default: []
 },
 category : {
@@ -57,8 +58,13 @@ category : {
 "Travel",
 "Food & Cooking",
 "Art & Design",
-"Education"]
+"Education"],
+required: true
 },
+visability: {
+    type: String,
+    enum: ['public', 'friends', 'private'],
+    default: 'private',},
 });
 
 module.exports = mongoose.model('Post', PostSchema);

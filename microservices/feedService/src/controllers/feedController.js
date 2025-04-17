@@ -28,6 +28,7 @@ Algorithm for Generating Personalized Feed:
 5. Return the paginated posts to the client.
 6. Implement caching for frequently accessed posts to improve performance.
  */
+//This function will generate the personalized feed for the user by mixing the posts of the user's friends, users that are in the same group, and different gender
 const generatePersonalizedFeed = async (req, res) => {
 }
 const getpaginatedPosts = async (req, res) => {
@@ -47,7 +48,29 @@ const getpaginatedPosts = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+//This function will get the posts of the users that are in the same group as the user
+const GetRandomAgeGroupPosts = async (req, res) => {
+    try
+{
+    //const numberofAgeGroup = 4;
+    const response = await axios.get(`${process.env.userServiceUrl}/post`, {
+        params: { age: req.body.age}
+    });
+        if (response.status !== 200) {
+            // I think this should be replaced with no action cuz it's not that important
+            throw new Error(`Error fetching posts for ppl with the same age group`);
+        }
+        else
+        {
 
+            res.status(200).json(response);
+        }
+    }
+catch (error) {
+    res.status(500).json({ message: error.message });
+}
+}
+//This function will get the posts of the friends of the user
 const GetRandomFriendsPosts = async (req, res) => {
     try
 {
@@ -60,8 +83,8 @@ const GetRandomFriendsPosts = async (req, res) => {
         params: { userIds:friendId }
     });
         if (response.status !== 200) {
-            // I think this should be replaced with no action cuz it's not that
-            throw new Error(`Error fetching posts for friend ${friend.id}`);
+            // I think this should be replaced with no action cuz it's not that important 
+            throw new Error(`Error fetching posts for friend ${friendId}`);
         }
         else
         {

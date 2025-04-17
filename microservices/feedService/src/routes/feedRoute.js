@@ -2,4 +2,4 @@ const express = require('express');
 const router = express.Router();
 const postController = require('../controllers/feedController');
 
-router.get('/feed/:user_id', postController.generatePersonalizedFeed);
+router.get('/:user_id', postController.generatePersonalizedFeed);
