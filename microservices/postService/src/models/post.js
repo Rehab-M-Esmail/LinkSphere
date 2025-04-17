@@ -17,7 +17,6 @@ createdAt: {
     default: Date.now,
     immutable: true
 },
-  // Additional useful fields
 updatedAt: {
     type: Date,
     default: Date.now
@@ -25,8 +24,41 @@ updatedAt: {
 likes: {
     type: Number,
     default: 0
-}
+},
+comments :
+{
+    type : {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        content: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: [500, 'Comment cannot exceed 500 characters']
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+    default: []
+},
+category : {
+    type: String,
+    enum: ["Technology",
+"Science",
+"Health & Fitness",
+"Business",
+"Entertainment",
+"Sports",
+"Travel",
+"Food & Cooking",
+"Art & Design",
+"Education"]
+},
 });
-
 
 module.exports = mongoose.model('Post', PostSchema);

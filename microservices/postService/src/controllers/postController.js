@@ -118,3 +118,4 @@ const getPostsByKeyword = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+module.exports= {createPost, getAllPosts, getPostById, updatePost, deletePost, likePost, unlikePost, getPostsByUserId, getPostsByKeyword};
