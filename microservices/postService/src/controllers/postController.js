@@ -9,14 +9,24 @@ const createPost = async (req, res) => {
         res.status(201).json(post);
     } catch (error) {
         res.status(400).json({ message: error.message });
-    }
+    } 
+
+   //used to insert multiple posts at once 3shan nkhtsr
+
+/*     try {
+    const posts = await Post.insertMany(req.body); // Insert all posts at once
+    res.status(201).json(posts);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  } */
+    
 };
 
 // const now = new Date();
 // console.log(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
 const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().populate('userId', 'username');
+        const posts = await Post.find();
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -26,7 +36,7 @@ const getAllPosts = async (req, res) => {
 const getPostById = async (req, res) => {
     try
     {
-        const post = await Post.findById(req.params.id).populate('userId', 'username');
+        const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -44,7 +54,7 @@ const updatePost = async (req, res) => {
             req.params.id,
             { content },
             { new: true }
-        ).populate('userId', 'username');
+        )
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -72,11 +82,13 @@ const likePost = async (req, res) => {
             req.params.id,
             { $inc: { likes: 1 } },
             { new: true }
-        ).populate('userId', 'username');
+        )
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
-        res.status(200).json(post);
+        //For testing purposes
+        res.status(200).send("Post liked successfully");
+        //res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -88,7 +100,7 @@ const unlikePost = async (req, res) => {
             req.params.id,
             { $inc: { likes: -1 } },
             { new: true }
-        ).populate('userId', 'username');
+        )
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -100,7 +112,7 @@ const unlikePost = async (req, res) => {
 // Get posts by user ID
 const getPostsByUserId = async (req, res) => {
     try {
-        const posts = await Post.find({ userId: req.params.userId }).populate('userId', 'username');
+        const posts = await Post.find({ userId: req.params.userId });
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -112,7 +124,7 @@ const getPostsByKeyword = async (req, res) => {
         const { keyword } = req.query;
         const posts = await Post.find({
             content: { $regex: keyword, $options: 'i' }
-        }).populate('userId', 'username');
+        })
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: error.message });

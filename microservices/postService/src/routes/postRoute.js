@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const postController = require('../controllers/postController');
 
-router.get('/', postController.getAllPosts);
-router.post('/', postController.createPost);
+router.get('/', postController.getAllPosts); //Tested successfully
+router.post('/', postController.createPost); //Tested successfully
 //router.get('/post', postController.getRandomPosts);
-router.get('/:id', postController.getPostById);
-router.put('/:id', postController.updatePost);
-router.delete('/:id', postController.deletePost);
-router.put('/:id/like', postController.likePost);
-router.put('/:id/unlike', postController.unlikePost);
-router.get('/:userId/posts', postController.getPostsByUserId);
+router.get('/:id', postController.getPostById); //Tested successfully
+router.put('/:id', postController.updatePost); //Tested successfully
+router.delete('/:id', postController.deletePost); //Tested successfully
+router.put('/:id/like', postController.likePost); //Tested successfully
+router.put('/:id/unlike', postController.unlikePost); //Tested successfully
+router.get('/:userId/posts', postController.getPostsByUserId); //Tested successfully
 //router.get('/feed/:keyword', postController.getPostsByKeyword);
-
 
 module.exports = router;
