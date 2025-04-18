@@ -62,7 +62,10 @@ class UserController {
       res.json({ profiles: result.rows });
     } catch (err) {
       console.error('Error fetching profiles by gender:', err);
-      res.status(500).json({ error: 'Error fetching profiles' });
+      res.status(500).json({ 
+        error: 'Error fetching profiles',
+        details: err.message
+      });      
     }
   }
 }

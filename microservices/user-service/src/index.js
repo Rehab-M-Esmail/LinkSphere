@@ -5,20 +5,16 @@ const userRoutes = require('./routes/user');
 const { initializeRedis } = require('./config/redis');
 const pool = require('./config/database');
 
-// Initialize Express app
 const app = express();
 
-// Add middleware for parsing JSON
 app.use(express.json());
 
-// Initialize Redis
 initializeRedis().then(connected => {
   if (!connected) {
     console.log('Application will run without Redis caching');
   }
 });
 
-// Initialize database tables
 const initializeDatabase = async () => {
   try {
     await pool.query(`
