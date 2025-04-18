@@ -4,25 +4,16 @@ const { Pool } = require('pg');
 const path = require('path');
 const bcrypt = require('bcrypt');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+const redis = require('redis');
+const client = redis.createClient();
 
-const requiredEnvVars = [
-  'DB_USER',
-  'DB_HOST',
-  'DB_NAME',
-  'DB_PASSWORD',
-  'DB_PORT',
-  'JWT_SECRET'
-];
+// Create Redis client
+client.on('connect', () => {
+  console.log('Connected to Redis');
+});
 
-const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-if (missingEnvVars.length > 0) {
-  console.error('Missing required environment variables:', missingEnvVars.join(', '));
-  console.error('Please check your .env file in the microservices/user-service directory');
-  process.exit(1);
-}
-
-const app = express();
-app.use(express.json());
+// Redis cache duration (1 hour)
+const CACHE_EXPIRY = 3600;
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -67,21 +58,7 @@ const initializeDatabase = async () => {
 
 initializeDatabase();
 
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    process.exit(1);
-  }
-  console.log('Successfully connected to the database');
-  release();
-});
-
-const VALID_GENDERS = ['Male', 'Female', 'Other', 'Prefer not to say'];
-const MIN_AGE = 13;
-const MAX_AGE = 120;
-const MAX_PREFERENCES = 5;
-const SALT_ROUNDS = 10;
-
+// Authentication middleware
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -102,7 +79,7 @@ const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
-    
+
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'User not found' });
     }
@@ -110,33 +87,49 @@ const authenticateToken = async (req, res, next) => {
     req.user = result.rows[0];
     next();
   } catch (err) {
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    if (err.name === 'TokenExpiredError') {
-      return res.status(403).json({ error: 'Token expired' });
-    }
     console.error('Authentication error:', err);
     res.status(500).json({ error: 'Internal server error during authentication' });
   }
 };
 
-const validateUserData = (data) => {
-  const errors = [];
+// Cache profile in Redis
+router.get('/profile', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    // Check if user profile is in Redis
+    client.get(`user:${userId}:profile`, async (err, cachedProfile) => {
+      if (err) {
+        console.error('Redis error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
 
-  if (data.preferences?.length > MAX_PREFERENCES) {
-    errors.push('You can select up to 5 preferences');
+      if (cachedProfile) {
+        // If data is cached, send it as response
+        return res.json({ user: JSON.parse(cachedProfile) });
+      } else {
+        // If data is not cached, query the database
+        const result = await pool.query(
+          'SELECT id, email, name, gender, preferences, last_login, is_active, created_at FROM users WHERE id = $1',
+          [userId]
+        );
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Store user profile in Redis
+        client.setex(`user:${userId}:profile`, CACHE_EXPIRY, JSON.stringify(result.rows[0]));
+
+        // Send response from database
+        res.json({ user: result.rows[0] });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching profile' });
   }
+});
 
-  if (data.gender && !VALID_GENDERS.includes(data.gender)) {
-    errors.push('Invalid gender selection');
-  }
-
-  return errors;
-};
-
-const router = express.Router();
-
+// Register route
 router.post('/register', async (req, res) => {
   const { email, password, name, gender, preferences } = req.body;
 
@@ -176,12 +169,6 @@ router.post('/register', async (req, res) => {
     });
   } catch (err) {
     console.error('Registration error:', err);
-    console.error('Error details:', {
-      message: err.message,
-      code: err.code,
-      detail: err.detail,
-      hint: err.hint
-    });
     res.status(500).json({ 
       error: 'Error creating user',
       details: err.message 
@@ -189,6 +176,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Login route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -232,6 +220,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Logout route
 router.post('/logout', async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
@@ -263,44 +252,34 @@ router.post('/logout', async (req, res) => {
   }
 });
 
+// Profile route (with caching)
 router.get('/profile', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
   try {
-    const result = await pool.query(
-      'SELECT id, email, name, gender, age, preferences, last_login, is_active, created_at FROM users WHERE id = $1',
-      [req.user.id]
-    );
-    res.json({ user: result.rows[0] });
+    client.get(`user:${userId}:profile`, async (err, cachedProfile) => {
+      if (err) {
+        console.error('Redis error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (cachedProfile) {
+        return res.json({ user: JSON.parse(cachedProfile) });
+      } else {
+        const result = await pool.query(
+          'SELECT id, email, name, gender, preferences, last_login, is_active, created_at FROM users WHERE id = $1',
+          [userId]
+        );
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        client.setex(`user:${userId}:profile`, CACHE_EXPIRY, JSON.stringify(result.rows[0]));
+        res.json({ user: result.rows[0] });
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error fetching profile' });
-  }
-});
-
-router.put('/profile', authenticateToken, async (req, res) => {
-  const { name, gender, age, preferences } = req.body;
-
-  const errors = validateUserData({ preferences, age, gender });
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  try {
-    const result = await pool.query(
-      `UPDATE users 
-       SET name = COALESCE($1, name),
-           gender = COALESCE($2, gender),
-           age = COALESCE($3, age),
-           preferences = COALESCE($4, preferences),
-           updated_at = $5
-       WHERE id = $6
-       RETURNING id, email, name, gender, age, preferences, last_login, is_active, created_at`,
-      [name, gender, age, preferences, new Date(), req.user.id]
-    );
-
-    res.json({ user: result.rows[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error updating profile' });
   }
 });
 
@@ -309,4 +288,4 @@ app.use('/auth', router);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Auth service running on port ${PORT}`);
-}); 
+});
