@@ -28,6 +28,5 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/feed', feedRoute);
 
-
 const PORT = process.env.FEED_SERVICE_PORT || 3001;
 app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));
