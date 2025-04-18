@@ -11,5 +11,5 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/post', postRoute);
 //Middleware will be added here
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.POST_SERVICE_PORT || 3000;
 app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));

@@ -1,6 +1,6 @@
 const axios = require('axios');
 const express = require('express');
-const feed = require('microservices/postService/src/models/post.js');
+const feed = require('/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/postService/src/app.js');
 //const Users = require('microservices/UserController/');
 //const Friends = require('microservices/friendService/');
 const users =
@@ -29,15 +29,15 @@ Algorithm for Generating Personalized Feed:
 6. Implement caching for frequently accessed posts to improve performance.
  */
 //This function will generate the personalized feed for the user by mixing the posts of the user's friends, users that are in the same group, and different gender
-const generatePersonalizedFeed = async (req, res) => {
-}
+
 const getpaginatedPosts = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.body;
+        var { page = 1, limit = 10 } = req.body;
         const startIndex= (page - 1) * limit; // pages are 1-indexed but MongoDB is 0-indexed
         const endIndex = page * limit;
         //Feed here will be replaced by the mix of posts from the user and its friends
-        const posts = await feed.slice(startIndex, endIndex);
+        const feedPosts = await generatePersonalizedFeed(req);
+        const posts = await feedPosts.slice(startIndex, endIndex);
         //const count = await feed.countDocuments();
         res.status(200).json({
             posts,
@@ -47,6 +47,15 @@ const getpaginatedPosts = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+}
+const generatePersonalizedFeed = async (req) => {
+            const ageGroupPosts = await GetRandomAgeGroupPosts(req.body.age);
+            const friendsPosts = await GetRandomFriendsPosts();
+            const mixedPosts = [...ageGroupPosts, ...friendsPosts];
+            // Sort the posts based on recency
+            mixedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            return mixedPosts;
 }
 //This function will get the posts of the users that are in the same group as the user
 const GetRandomAgeGroupPosts = async (req, res) => {
@@ -58,44 +67,47 @@ const GetRandomAgeGroupPosts = async (req, res) => {
     });
         if (response.status !== 200) {
             // I think this should be replaced with no action cuz it's not that important
-            throw new Error(`Error fetching posts for ppl with the same age group`);
+            //throw new Error(`Error fetching posts for ppl with the same age group`);
+            return [];
         }
-        else
-        {
 
-            res.status(200).json(response);
-        }
-    }
+    return response.data;
+}
 catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log(` MESSAGE FROM AGE${ error.message }`);
+    return [];
 }
 }
 //This function will get the posts of the friends of the user
-const GetRandomFriendsPosts = async (req, res) => {
+const GetRandomFriendsPosts = async (req) => {
     try
 {
-    const FriendsIds =  getRandomElements(users, numberoffriends);
-    //assuming that Id is the index of the user
+    const users = require('../data.json');
+    if (!users || users.length === 0) {
+        console.log('Error fetching users');
+    }
     const numberoffriends = 3;
+    const selectedFriends =  getRandomElements(users, numberoffriends);
+    const FriendsIds = selectedFriends.map((friend) => friend.id);
+    //assuming that Id is the index of the user
     const friendsPosts = [];
     for (const friendId of FriendsIds) {
-            const response = await axios.get(`${process.env.postServiceUrl}/post`, {
-        params: { userIds:friendId }
-    });
-        if (response.status !== 200) {
-            // I think this should be replaced with no action cuz it's not that important 
-            throw new Error(`Error fetching posts for friend ${friendId}`);
+            const response = await axios.get(`${process.env.postServiceUrl}/post/${friendId}/posts`);
+        if (response.status == 200) {
+            friendsPosts.push(...response.data);
         }
         else
         {
-            friendsPosts.push(...response.data);
+            // I think this should be replaced with no action cuz it's not that important 
+            //throw new Error(`Error fetching posts for friend ${friendId}`);
         }
-        res.status(200).json(friendsPosts);
     }
+    return friendsPosts;
     
 }
 catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log({ message: error.message });
+    return [];
 }
 }
 
@@ -108,4 +120,4 @@ function getRandomElements(arr, n) {
     return Array.from(result);
 }
 //Since the friends service is not implemented yet, I will get random people to be act like their friends
-module.exports ={generatePersonalizedFeed,getpaginatedPosts};
+module.exports ={getpaginatedPosts};
