@@ -1,8 +1,8 @@
 const axios = require('axios');
 const express = require('express');
 const feed = require('/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/postService/src/app.js');
-//const Users = require('microservices/UserController/');
-//const Friends = require('microservices/friendService/');
+const redisClient = require('../config/cache'); 
+
 const users =
 [
     {   
@@ -15,7 +15,8 @@ const users =
         friends:["2", "3"],
         posts:["1", "2"],
     }
-]
+];
+
 /*
 Algorithm for Generating Personalized Feed:
 1. Fetch the user's preferences from the database.
@@ -27,7 +28,8 @@ Algorithm for Generating Personalized Feed:
 4. Paginate the posts to ensure efficient loading.
 5. Return the paginated posts to the client.
 6. Implement caching for frequently accessed posts to improve performance.
- */
+*/
+
 //This function will generate the personalized feed for the user by mixing the posts of the user's friends, users that are in the same group, and different gender
 
 const getpaginatedPosts = async (req, res) => {
@@ -41,7 +43,6 @@ const getpaginatedPosts = async (req, res) => {
         //const count = await feed.countDocuments();
         res.status(200).json({
             posts,
-            //totalPages: Math.ceil(count / limit),
             currentPage: page,
         });
     } catch (error) {
@@ -59,12 +60,10 @@ const generatePersonalizedFeed = async (req) => {
 }
 //This function will get the posts of the users that are in the same group as the user
 const GetRandomAgeGroupPosts = async (req, res) => {
-    try
-{
-    //const numberofAgeGroup = 4;
-    const response = await axios.get(`${process.env.userServiceUrl}/post`, {
-        params: { age: req.body.age}
-    });
+    try {
+        const response = await axios.get(`${process.env.userServiceUrl}/post`, {
+            params: { age: req.body.age }
+        });
         if (response.status !== 200) {
             // I think this should be replaced with no action cuz it's not that important
             //throw new Error(`Error fetching posts for ppl with the same age group`);
