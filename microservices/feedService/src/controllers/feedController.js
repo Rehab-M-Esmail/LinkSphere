@@ -1,6 +1,6 @@
 const axios = require('axios');
 const express = require('express');
-const feed = require('/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/postService/src/app.js');
+//const feed = require('/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/postService/src/post.js');
 const redisClient = require('../config/cache'); 
 
 const users =
@@ -50,7 +50,7 @@ const getpaginatedPosts = async (req, res) => {
     }
 }
 const generatePersonalizedFeed = async (req) => {
-            const ageGroupPosts = await GetRandomAgeGroupPosts(req.body.age);
+            const ageGroupPosts = await GetRandomAgeGroupPosts(req);
             const friendsPosts = await GetRandomFriendsPosts();
             const mixedPosts = [...ageGroupPosts, ...friendsPosts];
             // Sort the posts based on recency
@@ -61,7 +61,7 @@ const generatePersonalizedFeed = async (req) => {
 //This function will get the posts of the users that are in the same group as the user
 const GetRandomAgeGroupPosts = async (req, res) => {
     try {
-        const response = await axios.get(`${process.env.userServiceUrl}/post`, {
+        const response = await axios.get(`${process.env.postServiceUrl}/post`, {
             params: { age: req.body.age }
         });
         if (response.status !== 200) {
@@ -69,11 +69,11 @@ const GetRandomAgeGroupPosts = async (req, res) => {
             //throw new Error(`Error fetching posts for ppl with the same age group`);
             return [];
         }
-
-    return response.data;
+    return response.data; //this will return the whole post's data 
+    //return response.data.map(post => post.content); returns only the content of the post
 }
 catch (error) {
-    console.log(` MESSAGE FROM AGE${ error.message }`);
+    console.log(` MESSAGE FROM AGE ${ error.message }`);
     return [];
 }
 }
@@ -101,11 +101,12 @@ const GetRandomFriendsPosts = async (req) => {
             //throw new Error(`Error fetching posts for friend ${friendId}`);
         }
     }
-    return friendsPosts;
+    return friendsPosts
+    //return friendsPosts.map(post => post.content);
     
 }
 catch (error) {
-    console.log({ message: error.message });
+    console.log('Error from GetRandomFriendsPosts ',{ message: error.message });
     return [];
 }
 }
