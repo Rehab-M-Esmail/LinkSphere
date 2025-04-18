@@ -22,8 +22,6 @@ const createPost = async (req, res) => {
     
 };
 
-// const now = new Date();
-// console.log(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
 const getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find();
@@ -118,7 +116,7 @@ const getPostsByUserId = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-// Get posts by keyword
+// Get posts by keyword could be used to search for posts by content
 const getPostsByKeyword = async (req, res) => {
     try {
         const { keyword } = req.query;

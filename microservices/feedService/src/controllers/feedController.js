@@ -1,21 +1,6 @@
 const axios = require('axios');
-const express = require('express');
-//const feed = require('/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/postService/src/post.js');
 const redisClient = require('../config/cache'); 
 
-const users =
-[
-    {   
-        id:"1",
-        user_name:"John Doe",
-        gender:"M",
-        age:25,
-        location:"New York",
-        interests:["sports", "music"],
-        friends:["2", "3"],
-        posts:["1", "2"],
-    }
-];
 
 /*
 Algorithm for Generating Personalized Feed:
