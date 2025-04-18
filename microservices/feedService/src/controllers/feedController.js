@@ -34,6 +34,7 @@ Algorithm for Generating Personalized Feed:
 
 const getpaginatedPosts = async (req, res) => {
     try {
+        //console.log(req.params.user_id);
         var { page = 1, limit = 10 } = req.body;
         const startIndex= (page - 1) * limit; // pages are 1-indexed but MongoDB is 0-indexed
         const endIndex = page * limit;
@@ -46,29 +47,56 @@ const getpaginatedPosts = async (req, res) => {
             currentPage: page,
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json(`Error from getpaginatedPosts function ${ error.message}` );
     }
 }
 const generatePersonalizedFeed = async (req) => {
+            const cacheKey = `personalizedFeed:${req.params.user_id}`;
+            const cachedFeed = await redisClient.get(cacheKey);
+            if (cachedFeed) {
+                console.log('Cache hit for personalized feed');
+                return JSON.parse(cachedFeed);
+            }
+            console.log('Cache miss for personalized feed');
             const ageGroupPosts = await GetRandomAgeGroupPosts(req);
-            const friendsPosts = await GetRandomFriendsPosts();
+            //console.log('Generated Age Group Posts:', ageGroupPosts);
+
+            const friendsPosts = await GetRandomFriendsPosts(req);
+            //console.log('Generated Friends Posts:', friendsPosts);
+
             const mixedPosts = [...ageGroupPosts, ...friendsPosts];
+
+            // console.log('Mixed Posts:', mixedPosts);
+
+
             // Sort the posts based on recency
             mixedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                await redisClient.set(cacheKey, JSON.stringify(mixedPosts), {
+        EX: 3600
+    });
 
             return mixedPosts;
 }
 //This function will get the posts of the users that are in the same group as the user
-const GetRandomAgeGroupPosts = async (req, res) => {
+const GetRandomAgeGroupPosts = async (req) => {
     try {
-        const response = await axios.get(`${process.env.postServiceUrl}/post`, {
-            params: { age: req.body.age }
-        });
+            const cacheKey = `ageGroupPosts:${req.body.age}`;
+            const cachedPosts = await redisClient.get(cacheKey);
+            if (cachedPosts) {
+                console.log('Cache hit for age group posts');
+                return JSON.parse(cachedPosts); 
+            }
+            console.log('Cache miss for age group posts');
+        const response = await axios.get(`${process.env.postServiceUrl}/post/${req.body.age}`);
         if (response.status !== 200) {
             // I think this should be replaced with no action cuz it's not that important
             //throw new Error(`Error fetching posts for ppl with the same age group`);
+            console.log(`Error fetching posts for age group ${req.body.age}`);
             return [];
         }
+                await redisClient.set(cacheKey, JSON.stringify(response.data), {
+            EX: 3600
+        });
     return response.data; //this will return the whole post's data 
     //return response.data.map(post => post.content); returns only the content of the post
 }
@@ -79,12 +107,20 @@ catch (error) {
 }
 //This function will get the posts of the friends of the user
 const GetRandomFriendsPosts = async (req) => {
+    const cacheKey = `friendsPosts:${req.params.user_id}`;
+    const cachedPosts = await redisClient.get(cacheKey);
+    if (cachedPosts) {
+        console.log('Cache hit for friends posts');
+        return JSON.parse(cachedPosts); // Return the cached posts
+    }
+    console.log('Cache miss for friends posts');
     try
 {
     const users = require('../data.json');
     if (!users || users.length === 0) {
         console.log('Error fetching users');
     }
+
     const numberoffriends = 3;
     const selectedFriends =  getRandomElements(users, numberoffriends);
     const FriendsIds = selectedFriends.map((friend) => friend.id);
@@ -101,6 +137,10 @@ const GetRandomFriendsPosts = async (req) => {
             //throw new Error(`Error fetching posts for friend ${friendId}`);
         }
     }
+            await redisClient.set(cacheKey, JSON.stringify(friendsPosts), {
+            EX: 3600
+        });
+        console.log('Personalized feed cached successfully for key:', cacheKey);
     return friendsPosts
     //return friendsPosts.map(post => post.content);
     

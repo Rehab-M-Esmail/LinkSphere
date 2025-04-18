@@ -13,19 +13,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //caching 
-// const redis = require("redis");
-// const redisClient = redis.createClient();
-// redisClient.on("error", (err) => {
-//     console.log("Redis Client Error", err);
-// });
-// redisClient.on("connect", () => {
-//     console.log("Redis Client Connected");
-// });
-// app.use((req, res, next) => {
-//     req.redisClient = redisClient;
-//     next();
-// });
-
+/* const redisClient = require('./config/cache');
+app.use((req, next) => {
+    req.redisClient = redisClient;
+    next();
+});
+ */
 app.use('/feed', feedRoute);
 
 const PORT = process.env.FEED_SERVICE_PORT || 3001;
