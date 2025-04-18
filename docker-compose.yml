@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: linksphere
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+
+  user-service:
+    build: ./microservices/user-service
+    env_file:
+      - ./microservices/user-service/.env
+    depends_on:
+      - postgres
+      - redis
+
+  post-service:
+    build: ./microservices/post-service
+    env_file:
+      - ./microservices/post-service/.env
+    depends_on:
+      - postgres
+      - redis
+
+  comment-service:
+    build: ./microservices/comment-service
+    env_file:
+      - ./microservices/comment-service/.env
+    depends_on:
+      - postgres
+      - redis
+
+  notification-service:
+    build: ./microservices/notification-service
+    env_file:
+      - ./microservices/notification-service/.env
+    depends_on:
+      - postgres
+      - redis
