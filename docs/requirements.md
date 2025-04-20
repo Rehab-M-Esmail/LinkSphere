@@ -78,12 +78,8 @@
 
 ### 3. Security
 
-1. **Data Encryption**:
-   - All sensitive data (e.g., passwords, messages) should be encrypted in transit and at rest.
-2. **Authentication and Authorization**:
+1. **Authentication and Authorization**:
    - Use OAuth 2.0 for secure authentication.
-3. **DDoS Protection**:
-   - The platform should be protected against Distributed Denial of Service (DDoS) attacks.
 
 ### 4. Reliability
 
@@ -105,14 +101,7 @@
 2. **Accessibility**:
    - The platform should comply with accessibility standards (e.g., WCAG).
 
-### 7. Extensibility
-
-1. **API Support**:
-   - Provide RESTful APIs and WebSocket APIs for third-party integrations.
-2. **Plugin Architecture**:
-   - Support for plugins or extensions to add new features.
-
-### 8. Compliance
+### 7. Compliance
 
 1. **Data Privacy**:
    - Comply with data privacy regulations such as GDPR and CCPA.
@@ -125,16 +114,24 @@
 
 1. **User Service**:
    - Handles user registration, login, and profile management.
-2. **Post Service**:
+2. ## **Profile managment Service**:
+   -Manages CRUD operations for profiles of users
+3. **Post Service**:
    - Manages post creation, editing, and deletion.
-3. **Notification Service**:
+4. **Notification Service**:
    - Sends real-time notifications to users.
-4. **Posts Feed**:
-   - Handles publishing posts feed.
-5. **Friend Service**:
+5. **Posts Feed**:
+   - Handles the creation of feed posts.
+6. **Friend Service**:
    - Manages friend requests, followers, and friend lists.
-6. **Event Bus**:
-   - Facilitates asynchronous communication between microservices using an event-driven architecture (e.g., Kafka, RabbitMQ).
+7. **Authentication Service**:
+   - Manages the authentication of requests
+8. **Search Service**:
+   \_ Manages Searching for users or posts
+9. **Images service**:
+   - Manages posts/ comments/ or user profiles images
+10. **Logging Servicce**:
+    -Manages the logs of users
 
 ### Communication
 
@@ -146,8 +143,8 @@
 ### Data Storage
 
 - **Relational Database**:
-  - Store structured data such as user profiles, posts, and friend lists (e.g., PostgreSQL).
+  - Store structured data such as user profiles, and friend lists (e.g., PostgreSQL).
 - **NoSQL Database**:
-  - Store unstructured data such as notifications and messages (e.g., MongoDB).
+  - Store unstructured data such as notifications, posts, and messages (e.g., MongoDB).
 - **Caching**:
   - Use Redis for caching frequently accessed data (e.g., user sessions, feed data).
