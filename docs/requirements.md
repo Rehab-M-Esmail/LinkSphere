@@ -127,11 +127,12 @@
 7. **Authentication Service**:
    - Manages the authentication of requests
 8. **Search Service**:
-   \_ Manages Searching for users or posts
+   - Manages Searching for users or posts
 9. **Images service**:
    - Manages posts/ comments/ or user profiles images
 10. **Logging Servicce**:
-    -Manages the logs of users
+
+- Manages the logs of users
 
 ### Communication
 

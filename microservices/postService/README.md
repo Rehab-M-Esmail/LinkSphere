@@ -1,7 +1,7 @@
 # To run the post service
 
 ```sh
-cd postService/src
+cd postService
 ```
 
 ```sh
@@ -9,5 +9,5 @@ npm install
 ```
 
 ```sh
-npm run start
+node src/app.js
 ```

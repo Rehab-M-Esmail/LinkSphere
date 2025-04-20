@@ -4,7 +4,7 @@ const feedRoute = require('./routes/feedRoute');
 const dotenv = require('dotenv');
 const connectToDatabase = require('./config/db');
 //There's an error in the path, it's not working with the relative path so balysha be el absolute path. This should be changed with your path
-dotenv.config({path:'/Users/rehabmahmoud/UNI/Year 3/GO/LinkSphere/microservices/feedService/.env'});
+dotenv.config();
 console.log(`Configured PORT in the Feed service: ${process.env.FEED_SERVICE_PORT}`);
 // console.log(`Mongo URI ${process.env.MONGO_URI_Feed}`);
 // console.log(`Post Service URL: ${process.env.postServiceUrl}`);

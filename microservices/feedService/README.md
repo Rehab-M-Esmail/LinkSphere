@@ -1,7 +1,7 @@
 # To run the Feed service
 
 ```sh
-cd feedService/src
+cd feedService
 ```
 
 ```sh
@@ -9,8 +9,9 @@ npm install
 ```
 
 ```sh
-npm run start
-```
-```sh
 npm install redis
+```
+
+```sh
+node src/app.js
 ```
