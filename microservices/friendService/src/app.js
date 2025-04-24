@@ -1,0 +1,12 @@
+const express = require('express');
+const friendRoute = require('./routes/friendRoute');
+const dotenv = require('dotenv');
+dotenv.config();
+const connectToDatabase = require('./config/db');
+connectToDatabase();
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/friend',friendRoute );
+const PORT = process.env.POST_FRIEND_SERVICE|| 3003;
+app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));
