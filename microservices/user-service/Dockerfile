@@ -9,6 +9,6 @@ RUN npm install
 COPY src/ ./src/
 COPY .env ./
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["npm", "run", "dev"] 

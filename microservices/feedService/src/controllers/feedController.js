@@ -63,6 +63,7 @@ const generatePersonalizedFeed = async (req) => {
             return mixedPosts;
 }
 //This function will get the posts of the users that are in the same group as the user
+// => function will be modified to allow passing age group as a parameter not just the age
 const GetRandomAgeGroupPosts = async (req) => {
     try {
             const cacheKey = `ageGroupPosts:${req.body.age}`;

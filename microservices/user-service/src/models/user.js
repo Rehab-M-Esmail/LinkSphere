@@ -90,6 +90,10 @@ class User {
   static async validatePassword(password, hashedPassword) {
     return bcrypt.compare(password, hashedPassword);
   }
+  static async getIds() {
+    const result = await pool.query('SELECT id FROM users');
+    return result.rows.map(user => user.id);
+  }
 }
 
 module.exports = User; 

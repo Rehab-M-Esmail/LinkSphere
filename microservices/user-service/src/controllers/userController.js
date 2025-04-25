@@ -68,6 +68,14 @@ class UserController {
       });      
     }
   }
+  static async getIds(req, res) { 
+    try {
+      const result = User.getIds();
+      res.json({ ids: result });
+    } catch (err) {
+      console.error('Error fetching user IDs:', err);
+      res.status(500).json({ error: 'Error fetching user IDs' });
+    }
+  }
 }
-
 module.exports = UserController; 
