@@ -128,8 +128,8 @@
    - Manages the authentication of requests
 8. **Search Service**:
    - Manages Searching for users or posts
-9. **Images service**:
-   - Manages posts/ comments/ or user profiles images
+9. **Media service**:
+   - Manages posts/ comments/ or user profiles Media files(images or videos)
 10. **Logging Servicce**:
 
 - Manages the logs of users
