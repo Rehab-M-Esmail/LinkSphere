@@ -2,23 +2,23 @@ const Post = require('../models/post');
 
 // Create a new post
 const createPost = async (req, res) => {
-    try {
-        const { userId, content,category } = req.body;
-        const post = new Post({ userId, content,category});
-        await post.save();
-        res.status(201).json(post);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    } 
+    // try {
+    //     const { userId, content,category } = req.body;
+    //     const post = new Post({ userId, content,category});
+    //     await post.save();
+    //     res.status(201).json(post);
+    // } catch (error) {
+    //     res.status(400).json({ message: error.message });
+    // } 
 
    //used to insert multiple posts at once 3shan nkhtsr
 
-/*     try {
+    try {
     const posts = await Post.insertMany(req.body); // Insert all posts at once
     res.status(201).json(posts);
   } catch (err) {
     res.status(400).json({ error: err.message });
-  } */
+  }
     
 };
 

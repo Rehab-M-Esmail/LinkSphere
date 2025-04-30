@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 
 const PostSchema = new mongoose.Schema({
+    //To be handled later so user can view single post on its profile
+    // postID: {
+    //     type:mongoose.Schema.Types.ObjectId,
+    // },
 userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to a User model
+    type: Number,
+    ref: 'user', // Reference to a User model
     required: true
 },
 content: {
@@ -29,8 +33,8 @@ comments: {
     type: [
         {
             userId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'User',
+                type: Number,
+                ref: 'user',
                 required: true
             },
             content: {
