@@ -17,11 +17,13 @@ const buildGraphNodes = async () => {
                     friend.createUserNode(user.id);
                 }
         );
+        console.log('Nodes created successfully');
+        res.status(201).json({ message: 'Nodes created successfully' });
     } catch (error) {
         console.error('Error fetching users:', error);
     }
 }
-const getFrineds = async(req,res)=>
+const getFriends = async(req,res)=>
 {
     const userId = req.params.user_id;
     try {
@@ -73,9 +75,10 @@ const getRecommendations = async (req, res) => {
 }
 const getFriendById = async (req, res) => { }
 module.exports = {
-    getFrineds,
+    getFriends,
     addFriend,
     removeFriend,
     getFriendById,
     getRecommendations,
+    buildGraphNodes
 }

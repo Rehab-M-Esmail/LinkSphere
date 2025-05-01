@@ -1,4 +1,4 @@
-const driver = require('../config/neo4j.config');
+const driver = require('../config/db');
 
 class FriendModel {
   async createUserNode(userId) {
