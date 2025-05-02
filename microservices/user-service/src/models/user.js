@@ -92,7 +92,8 @@ class User {
   }
   static async getIds() {
     const result = await pool.query('SELECT id FROM users');
-    return result.rows.map(user => user.id);
+    //console.log("in user file",result.rows);
+    return result.rows.map(row => row.id);
   }
 }
 

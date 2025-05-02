@@ -70,7 +70,8 @@ class UserController {
   }
   static async getIds(req, res) { 
     try {
-      const result = User.getIds();
+      const result = await User.getIds();
+      //console.log("in user controller");
       res.json({ ids: result });
     } catch (err) {
       console.error('Error fetching user IDs:', err);
