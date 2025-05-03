@@ -2,22 +2,29 @@ const driver = require('../config/neo4j');
 
 class FriendModel {
   async createUserNode(userId) {
-    const session = driver.session();
+    const session = driver.session({ database: 'friend' });
     try {
-      await session.run(
-        `MERGE (u:User {userId: $userId})
-         ON CREATE SET u.createdAt = datetime()`,
-        { userId }
-      );
-    } finally {
+        
+   await session.executeWrite(async txc => {
+   var result = await txc.run(
+            `MERGE (u:User {userId: $userId})
+            ON CREATE SET u.createdAt = datetime() RETURN u.userId AS userId`,
+            { userId });
+            //console.log(`User node created for userId: ${result.records}`);
+            })
+} 
+catch (error) {
+        console.error('Error creating user node:', error.message);
+}
+    finally {
       await session.close();
     }
 }
 
 async addFriendship(userId1, userId2) {
-    const session = driver.session();
+    const session = driver.session({ database: 'friend' });
     try {
-      const writeTxResultPromise = await session.executeWrite(async txc =>{
+        await session.executeWrite(async txc =>{
         var result = await txc.run(
         `MATCH (u1:User {userId: $userId1})
          MATCH (u2:User {userId: $userId2})
@@ -31,10 +38,30 @@ async addFriendship(userId1, userId2) {
     }
   }
 
-  async getFriends(userId) {
-    const session = driver.session();
+async removeFriendship(userId1, userId2) {
+    const session = driver.session({ database: 'friend' });
     try {
-      const writeTxResultPromise = await session.executeWrite(async txc =>{
+        await session.executeWrite(async txc => {
+        var result = await txc.run(
+        `MATCH (u1:User {userId: $userId1})-[r:FRIENDS]->(u2:User {userId: $userId2})
+         DELETE r`,
+        { userId1, userId2 }
+      );
+      console.log(`Friendship removed between ${userId1} and ${userId2}`);
+    });
+    }  catch (error) {
+        console.error('Error removing friendship:', error.message);
+    }
+    finally {
+      await session.close();
+    }
+  }
+async getFriends(userId) {
+    const session = driver.session({ database: 'friend' });
+    //console.log('Getting friends for userId:', userId);
+    try {
+        //await driver.executeQuery(async txc => {
+        await session.executeRead(async txc => {
         var result = await txc.run(`MATCH (u:User {userId: $userId})-[:FRIENDS]->(friend:User)
          RETURN friend.userId AS userId`,
         { userId });
@@ -45,14 +72,38 @@ async addFriendship(userId1, userId2) {
       await session.close();
     }
   }
+
+// async getFriends(userId) {
+//     const session = driver.session({ database: 'friend' });
+//     try {
+//         console.log(`Fetching friends for userId: ${userId}`);
+//         const result = await session.run(
+//             `MATCH (u:User {userId: $userId})-[:FRIENDS]->(friend:User)
+//              RETURN friend.userId AS userId`,
+//             { userId }
+//         );
+//         console.log('Raw Query Result:', result);
+//         console.log('Query Records:', result.records);
+//         const friends = result.records.map(record => record.get('userId'));
+//         console.log('Processed Result:', friends);
+//         return friends;
+//     } catch (error) {
+//         console.error('Error fetching friends:', error.message);
+//         return [];
+//     } finally {
+//         await session.close();
+//     }
+// }
+
   async getUserById(userId) {
-    const session = driver.session();
+    const session = driver.session({ database: 'friend' });
+    console.log('Getting user by ID:', userId);
     try {
-      const result = await session.run(
-        `MATCH (u:User {userId: $userId})
-         RETURN u`,
-        { userId }
-      );
+        const result = await session.run(
+            `MATCH (u:User {userId: $userId}) RETURN u`,
+            { userId }
+        );
+        console.log('Query Result:', result.records.map(record => record.get('u').properties));
       return result.records.length > 0 ? result.records[0].get('u') : null;
     } finally {
       await session.close();

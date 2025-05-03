@@ -29,6 +29,7 @@ const buildGraphNodes = async()=> {
         console.error('Error fetching users:', error);
     }
 }
+friend.createUserNode(12);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

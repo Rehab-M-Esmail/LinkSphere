@@ -9,7 +9,13 @@ Algorithm
 const getFriends = async(req,res)=>
 {
     const userId = req.params.user_id;
+    //console.log(userId);
     try {
+        const user1 = await friend.getUserById(userId);
+        console.log(user1);
+            if (!user1) {
+            return res.status(404).json({ error: 'One or both users not found' });
+        }
         const friends = await friend.getFriends(userId);
         res.status(200).json(friends);
     } catch (error) {
@@ -35,6 +41,7 @@ const addFriend = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
 const removeFriend = async (req, res) => {
         const { userId1, userId2 } = req.body;
 try {
