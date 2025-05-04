@@ -23,6 +23,7 @@ const getFriends = async(req,res)=>
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+//This will be modified to have a switch case to add all types of relationships
 const addFriend = async (req, res) => {
     const { userId1, userId2 } = req.body;
     try {

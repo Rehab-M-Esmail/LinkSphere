@@ -6,6 +6,8 @@ const driver = neo4j.driver(
   {
     database: 'friend', 
     encrypted: false,
+    maxConnectionPoolSize: 10,
+    connectionTimeout: 30000
   }
 );
 module.exports = driver;

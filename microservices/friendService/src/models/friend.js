@@ -26,6 +26,7 @@ async addFriendship(userId1, userId2) {
     try {
         await session.executeWrite(async txc =>{
         var result = await txc.run(
+          //This will be modified to check if there is already a relationship to avoid duplicate relationships
         `MATCH (u1:User {userId: $userId1})
          MATCH (u2:User {userId: $userId2})
          MERGE (u1)-[r:FRIENDS {since: datetime()}]->(u2)`,
@@ -97,6 +98,7 @@ async getFriends(userId) {
 
   async getUserById(userId) {
     const session = driver.session({ database: 'friend' });
+    //here is the problem possibly
     console.log('Getting user by ID:', userId);
     try {
         const result = await session.run(
