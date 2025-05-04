@@ -8,7 +8,7 @@ Algorithm
 */
 const getFriends = async(req,res)=>
 {
-    const userId = req.params.user_id;
+    const userId = Number(req.params.user_id);
     //console.log(userId);
     try {
         const user1 = await friend.getUserById(userId);
@@ -17,6 +17,10 @@ const getFriends = async(req,res)=>
             return res.status(404).json({ error: 'One or both users not found' });
         }
         const friends = await friend.getFriends(userId);
+        console.log(friends);
+        if (!friends) {
+            return res.status(404).json({ error: 'No friends found' });
+        }
         res.status(200).json(friends);
     } catch (error) {
         console.error('Error fetching friends:', error);
@@ -45,11 +49,15 @@ const addFriend = async (req, res) => {
 
 const removeFriend = async (req, res) => {
         const { userId1, userId2 } = req.body;
+        //You should check if ids are different and not empty
 try {
+    
+    //Need to check if the users exist in the database
             const [user1, user2] = await Promise.all([
             friend.getUserById(userId1),
             friend.getUserById(userId2)
         ]);
+
         if (!user1 || !user2) {
             return res.status(404).json({ error: 'One or both users not found' });
         }
