@@ -1,8 +1,14 @@
-const Minio= require('minio');
-const minioClient = new Minio.Client({
-  endPoint: 'play.min.io',
-  port: process.env.MINIO_PORT,
-  useSSL: process.env.MINIO_USE_SSL,
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
-})
+const dotenv = require('dotenv');
+const minioClient = require('./MinIoConfig');
+const connectToDatabase = async () => {
+  try{
+    //await minioClient.listBuckets();
+    console.log('Connected to MinIO');
+}
+catch (err) {
+  console.error('Error connecting to MinIO:', err);
+  process.exit(1);
+
+}
+}
+module.exports = connectToDatabase;
