@@ -1,12 +1,12 @@
-const express = require('express');
-const imageRoute = require('./routes/imageRoute');
-const dotenv = require('dotenv');
+const express = require("express");
+const imageRoute = require("./routes/imageRoute");
+const dotenv = require("dotenv");
 dotenv.config();
-const connectToDatabase = require('./config/db');
+const connectToDatabase = require("./config/db");
 connectToDatabase();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/image', imageRoute );
+app.use("/image", imageRoute);
 const PORT = process.env.IMAGE_SERVCE_PORT || 9000;
 app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));
