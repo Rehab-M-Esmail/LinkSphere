@@ -558,6 +558,48 @@ router.get('/profiles/gender/:gender', authenticateToken, async (req, res) => {
   }
 });
 
+// Search users endpoint
+router.get('/search', authenticateToken, async (req, res) => {
+  const { query } = req.query;
+  
+  if (!query || query.trim() === '') {
+    return res.status(400).json({ error: 'Search query parameter is required' });
+  }
+
+  try {
+    // Search for users by name or email (case insensitive)
+    const result = await pool.query(
+      `SELECT 
+        id, 
+        email, 
+        name, 
+        gender, 
+        preferences, 
+        EXTRACT(YEAR FROM AGE(date_of_birth)) as age,
+        profile_picture, 
+        is_active, 
+        created_at 
+      FROM users 
+      WHERE 
+        LOWER(name) LIKE LOWER($1) OR 
+        LOWER(email) LIKE LOWER($1)
+      ORDER BY name ASC
+      LIMIT 20`,
+      [`%${query}%`]
+    );
+    
+    const response = {
+      count: result.rows.length,
+      users: result.rows
+    };
+    
+    res.json(response);
+  } catch (err) {
+    console.error('User search error:', err);
+    res.status(500).json({ error: 'Error searching users' });
+  }
+});
+
 app.use('/auth', router);
 
 const PORT = process.env.PORT || 3001;
