@@ -1,9 +1,17 @@
-const express = require('express');
+const express = require("express");
+const multer = require("multer");
+const storage = multer.memoryStorage();
 const router = express.Router();
-const { uploadImage, getImage, deleteImage } = require('../controllers/imageController');
-
-router.post('/upload', uploadImage); 
-router.get('/get/:objectName', getImage);
-router.delete('/delete/:objectName', deleteImage);
+const upload = multer({ storage });
+const {
+  uploadImage,
+  getImage,
+  deleteImage,
+  listObjects,
+} = require("../controllers/imageController");
+router.post("/upload", upload.single("file"), uploadImage);
+router.get("/:objectName", getImage);
+router.delete("/delete/:objectName", deleteImage);
+router.get("/:bucketName", listObjects);
 
 module.exports = router;
