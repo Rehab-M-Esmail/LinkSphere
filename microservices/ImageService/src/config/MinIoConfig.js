@@ -13,4 +13,5 @@ minioClient
   .listBuckets()
   .then(() => console.log("✅ MinIO connection successful!"))
   .catch((err) => console.error("❌ MinIO connection failed:", err.message));
+
 module.exports = minioClient;

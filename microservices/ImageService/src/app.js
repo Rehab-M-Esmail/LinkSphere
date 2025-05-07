@@ -6,6 +6,7 @@ dotenv.config();
 const connectToDatabase = require("./config/db");
 connectToDatabase();
 const app = express();
+
 app.use(bodyParser.json());
 app.use("/", imageRoute);
 app.use(express.json());

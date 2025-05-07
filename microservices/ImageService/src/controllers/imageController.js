@@ -87,6 +87,7 @@ class ImageController {
       res.status(500).json({ message: "Error listing objects", error });
     }
   }
+
   //I think i need to add a function to return all images of a specific user
 }
 module.exports = new ImageController();

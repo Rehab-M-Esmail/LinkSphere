@@ -9,6 +9,7 @@ const {
   deleteImage,
   listObjects,
 } = require("../controllers/imageController");
+
 router.post("/upload", upload.single("file"), uploadImage);
 router.get("/:objectName", getImage);
 router.delete("/delete/:objectName", deleteImage);
