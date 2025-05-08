@@ -96,7 +96,6 @@ services:
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASSWORD=password
 
-
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
