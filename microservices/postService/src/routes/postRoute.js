@@ -11,6 +11,7 @@ router.delete('/:id', postController.deletePost); //Tested successfully
 router.put('/:id/like', postController.likePost); //Tested successfully
 router.put('/:id/unlike', postController.unlikePost); //Tested successfully
 router.get('/:userId/posts', postController.getPostsByUserId); //Tested successfully
-//router.get('/feed/:keyword', postController.getPostsByKeyword);
+router.get('/search/keyword', postController.getPostsByKeyword); 
+router.get('/search/category/:category', postController.getPostsByCategory);
 
 module.exports = router;

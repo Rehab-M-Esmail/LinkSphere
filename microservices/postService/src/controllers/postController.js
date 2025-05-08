@@ -120,12 +120,65 @@ const getPostsByUserId = async (req, res) => {
 const getPostsByKeyword = async (req, res) => {
     try {
         const { keyword } = req.query;
+        
+        if (!keyword) {
+            return res.status(400).json({ message: 'Keyword query parameter is required' });
+        }
+        
+        // Search in post content using case-insensitive regex
         const posts = await Post.find({
             content: { $regex: keyword, $options: 'i' }
-        })
-        res.status(200).json(posts);
+        }).sort({ createdAt: -1 }); // Sort by newest first
+        
+        if (posts.length === 0) {
+            return res.status(200).json({ message: 'No posts found matching your search', posts: [] });
+        }
+        
+        res.status(200).json({
+            count: posts.length,
+            posts: posts
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
-module.exports= {createPost, getAllPosts, getPostById, updatePost, deletePost, likePost, unlikePost, getPostsByUserId, getPostsByKeyword};
+
+// Get posts by category
+const getPostsByCategory = async (req, res) => {
+    try {
+        const { category } = req.params;
+        
+        if (!category) {
+            return res.status(400).json({ message: 'Category parameter is required' });
+        }
+        
+        // Search for posts by category
+        const posts = await Post.find({
+            category: { $regex: new RegExp(category, 'i') }
+        }).sort({ createdAt: -1 }); // Sort by newest first
+        
+        if (posts.length === 0) {
+            return res.status(200).json({ message: `No posts found in category: ${category}`, posts: [] });
+        }
+        
+        res.status(200).json({
+            count: posts.length,
+            posts: posts
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports= {
+    createPost, 
+    getAllPosts, 
+    getPostById, 
+    updatePost, 
+    deletePost, 
+    likePost, 
+    unlikePost, 
+    getPostsByUserId, 
+    getPostsByKeyword,
+    getPostsByCategory
+};
