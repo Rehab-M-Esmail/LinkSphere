@@ -14,7 +14,6 @@ services:
     image: "redis:alpine"
     ports:
       - "6379:6379"
-  
 
   postService:
     build: ./postService
@@ -22,24 +21,30 @@ services:
       - "3000:3000"
     environment:
       - REDIS_ADDR=redis:6379
-      - MONGO_URI=mongodb://127.0.0.1:27017/postService
+      - MONGO_URI=mongodb://mongo:27017/postService
       - MONGO_DB=postService
       - POST_SERVICE_PORT=3000
     depends_on:
       - redis
       - mongo
-    
+
   feedService:
     build: ./feedService
     ports:
       - "4000:4000"
     environment:
-    - MONGO_URI_Feed=mongodb://localhost:27017/feedService
-    - MONGO_DB_Feed=feedService
-    - postServiceUrl='http://localhost:3000'
-    - userServiceUrl='http://user-service:3002'
-    - FEED_SERVICE_PORT=3001
-    - REDIS_URL=redis://localhost:6379
+      - MONGO_URI_Feed=mongodb://mongo:27017/feedService
+      - MONGO_DB_Feed=feedService
+      - postServiceUrl=http://postService:3000
+      - userServiceUrl=http://userService:3002
+      - FEED_SERVICE_PORT=4000
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - mongo
+      - postService
+      - userService
+
   mongo:
     image: "mongo:4.4"
     ports:
@@ -47,19 +52,8 @@ services:
     volumes:
       - mongo-data:/data/db
     environment:
-      - MONGO_URI=mongodb://127.0.0.1:27017/postService
-      - MONGO_DB=postService
+      - MONGO_INITDB_DATABASE=postService
 
-  mongoose:
-    image: "mongo:4.4"
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo-data:/data/db
-    environment:
-      - MONGO_URI=mongodb://127.0.0.1:27017/postService
-      - MONGO_DB=postService
-      - POST_SERVICE_PORT=3000
   userService:
     build: ./userService
     ports:
@@ -74,14 +68,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      -  DB_USER=postgres
-      -  DB_HOST=localhost
-      -  DB_NAME=link_sphere
-      -  DB_PASSWORD=postgres
-      -  DB_PORT=5432
+      - DB_USER=postgres
+      - DB_HOST=postgres
+      - DB_NAME=link_sphere
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
-  
 
   friendService:
     build: ./friendService
@@ -89,10 +82,9 @@ services:
       - "3003:3003"
     environment:
       - FRIEND_SERVICE_PORT=3003
-      - REDIS_URL=redis://localhost:6379
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - neo4j-driver
-    
 
   neo4j-driver:
     image: "neo4j:5.28.1"
@@ -100,6 +92,29 @@ services:
       - "7474:7474"
       - "7687:7687"
     environment:
-      - NEO4J_URI=bolt://localhost:7687
+      - NEO4J_URI=bolt://neo4j-driver:7687
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASSWORD=password
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+volumes:
+  mongo-data:
+  postgres-data:
