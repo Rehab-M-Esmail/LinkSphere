@@ -1,0 +1,22 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "axios": "^1.9.0",
+    "jest": "^29.7.0",
+    "minio": "^8.0.5",
+    "mongodb": "^6.16.0",
+    "neo4j-driver": "^5.28.1",
+    "pg": "^8.15.6",
+    "redis": "^5.0.1",
+    "supertest": "^7.1.0"
+  }
+}
