@@ -5,7 +5,7 @@ services:
     build:
       context: .
     ports:
-      - "3000:3000"
+      - "6000:6000"
     environment:
       MINIO_USE_SSL: "false"
       MINIO_ENDPOINT: "minio"
