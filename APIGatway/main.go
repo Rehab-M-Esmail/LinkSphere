@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -56,6 +57,9 @@ func main() {
 	r.Use(cors.Default())
 	r.Use(rateLimitMiddleware(redisClient))
 	r.Use(concurrencyMiddleware(redisClient))
+
+	// Add Prometheus metrics endpoint before any other routes
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "API Gateway is running"})

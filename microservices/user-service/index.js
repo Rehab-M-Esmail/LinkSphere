@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const redis = require('redis');
+const prometheus = require('prom-client');
 
 // Initialize Express app and router
 const app = express();
@@ -27,7 +28,7 @@ const initializeRedis = async () => {
     }
 
     redisClient = redis.createClient({
-      url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
+      url: `redis://${process.env.REDIS_HOST || 'redis'}:${process.env.REDIS_PORT || 6379}`,
       retry_strategy: function(options) {
         if (options.error && options.error.code === 'ECONNREFUSED') {
           console.log('Redis connection refused, retrying...');
@@ -93,11 +94,11 @@ const oauth2Client = new OAuth2Client(
 );
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'postgres',
+  database: process.env.DB_NAME || 'link_sphere',
+  password: process.env.DB_PASSWORD || 'postgres',
+  port: process.env.DB_PORT || 5432,
 });
 
 // Constants
@@ -598,6 +599,27 @@ router.get('/search', authenticateToken, async (req, res) => {
     console.error('User search error:', err);
     res.status(500).json({ error: 'Error searching users' });
   }
+});
+
+// Add Prometheus for metrics
+const register = new prometheus.Registry();
+prometheus.collectDefaultMetrics({ register });
+
+// Create custom metrics
+const httpRequestDurationMicroseconds = new prometheus.Histogram({
+  name: 'http_request_duration_ms',
+  help: 'Duration of HTTP requests in ms',
+  labelNames: ['method', 'route', 'code'],
+  buckets: [0.1, 5, 15, 50, 100, 500]
+});
+
+// Register the metrics
+register.registerMetric(httpRequestDurationMicroseconds);
+
+// Add metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
 });
 
 app.use('/auth', router);

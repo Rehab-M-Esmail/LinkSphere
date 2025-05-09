@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:18-slim
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -9,6 +9,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3001
+EXPOSE 4000
 
 CMD ["node", "src/app.js"]
