@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  feedService:
+  feedservice:
     build:
       context: ./feedService
+    container_name: feedService
     ports:
       - "3001:3001"
     environment:
@@ -16,8 +17,8 @@ services:
     depends_on:
       - mongo
       - redis
-      - postService
-      - userService
+      - postservice
+      - userservice
 
   mongo:
     image: mongo:4.4
@@ -35,19 +36,35 @@ services:
     environment:
       - REDIS_URL=redis://localhost:6379
 
-  postService:
-    image: postservice:latest
+  postservice:
+    image: postservice
+    container_name: postService
     ports:
       - "3000:3000"
     environment:
       - POST_SERVICE_PORT=3000
 
-  userService:
-    image: userservice:latest
+  userservice:
+    build: ./microservices/user-service
+    container_name: userService
     ports:
       - "3002:3002"
     environment:
       - USER_SERVICE_PORT=3002
-
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+    image: "postgres:15-alpine"
+    ports:  
+      - "5432:5432"
+    environment:
+      - DB_USER=postgres
+      - DB_HOST=postgres
+      - DB_NAME=link_sphere
+      - POSTGRES_PASSWORD=postgres
+      - DB_PORT=5432
+    # volumes:
+    #   - postgres-data:/var/lib/postgresql/data
 volumes:
   mongo-data:

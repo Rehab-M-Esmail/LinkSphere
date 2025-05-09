@@ -4,6 +4,7 @@ services:
   friendservice:
     build:
       context: ./friendService
+    container_name: friendService
     ports:
       - "7474:7474" # Expose the friendService port
     environment:
