@@ -2,7 +2,8 @@ version: '3.8'
 services:
 
   api-gateway:
-    build: .
+    build: 
+      context: ./APIGatway
     ports:
       - "8080:8080"
     environment:
@@ -16,8 +17,8 @@ services:
     ports:
       - "6379:6379"
 
-  postService:
-    build: ./postService
+  postservice:
+    build: ./microservices/postService
     ports:
       - "3000:3000"
     environment:
@@ -29,8 +30,9 @@ services:
       - redis
       - mongo
 
-  feedService:
-    build: ./feedService
+  feedservice:
+    build: 
+      context: ./microservices/feedService
     ports:
       - "4000:4000"
     environment:
@@ -42,9 +44,9 @@ services:
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
-      - mongo
-      - postService
-      - userService
+      - postservice
+      - userservice
+      - friendservice
 
   mongo:
     image: "mongo:4.4"
@@ -55,47 +57,53 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=postService
 
-  userService:
-    build: ./userService
+  userservice:
+    build: ./microservices/user-service
     ports:
       - "3002:3002"
     environment:
       - USER_SERVICE_PORT=3002
     depends_on:
       - postgres
+      - redis
 
   postgres:
-    image: "postgres:18-alpine"
-    ports:
+    image: "postgres:15-alpine"
+    ports:  
       - "5432:5432"
     environment:
       - DB_USER=postgres
       - DB_HOST=postgres
       - DB_NAME=link_sphere
-      - DB_PASSWORD=postgres
+      - POSTGRES_PASSWORD=postgres
       - DB_PORT=5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  friendService:
-    build: ./friendService
+  friendservice:
+    build: 
+      context: ./microservices/friendService
     ports:
       - "3003:3003"
     environment:
       - FRIEND_SERVICE_PORT=3003
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - neo4j-driver
+      - neo4j
+      - userservice
 
-  neo4j-driver:
-    image: "neo4j:5.28.1"
+  neo4j:
+    image: neo4j:5.12
     ports:
-      - "7474:7474"
-      - "7687:7687"
+      - "7687:7687" # Bolt protocol port
+      - "7474:7474" # Neo4j web interface port
     environment:
-      - NEO4J_URI=bolt://neo4j-driver:7687
+      - NEO4J_URI=bolt://localhost:7687
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASSWORD=password
+    # volumes:
+    #   - neo4j-data:/data
+    #   - neo4j-logs:/logs
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -115,6 +123,17 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+
+  imageservice:
+    build: 
+      context: ./microservices/imageService
+    ports:
+      - "3000:3000"
+    environment:
+      - IMAGE_SERVCE_PORT=6000
+    depends_on:
+      - redis
+      - kafka
 
 volumes:
   mongo-data:

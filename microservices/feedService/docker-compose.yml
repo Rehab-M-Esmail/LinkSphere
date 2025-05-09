@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  feedService:
+    build:
+      context: ./feedService
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI_Feed=mongodb://mongo:27017/feedService
+      - MONGO_DB_Feed=feedService
+      - postServiceUrl=http://postService:3000
+      - userServiceUrl=http://userService:3002
+      - FEED_SERVICE_PORT=3001
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+      - postService
+      - userService
+
+  mongo:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_DB_Feed=feedService
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_URL=redis://localhost:6379
+
+  postService:
+    image: postservice:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - POST_SERVICE_PORT=3000
+
+  userService:
+    image: userservice:latest
+    ports:
+      - "3002:3002"
+    environment:
+      - USER_SERVICE_PORT=3002
+
+volumes:
+  mongo-data:
