@@ -101,9 +101,10 @@ services:
       - "7687:7687" # Bolt protocol port
       - "7474:7474" # Neo4j web interface port
     environment:
-      - NEO4J_URI=bolt://localhost:7687
-      - NEO4J_USERNAME=neo4j
-      - NEO4J_PASSWORD=password
+      # - NEO4J_URI=bolt://localhost:7687
+      # - NEO4J_USERNAME=neo4j
+      # - NEO4J_PASSWORD=password
+      - NEO4J_AUTH=neo4j/password
     volumes:
       - neo4j-data:/data
       - neo4j-logs:/logs
@@ -128,18 +129,43 @@ services:
       - "9092:9092"
 
   imageservice:
-    build: 
-      context: ./microservices/imageService
+    build:
+      context: ./microservices/ImageService
     ports:
       - "6000:6000"
     environment:
-      - IMAGE_SERVICE_PORT=6000
+      - MINIO_USE_SSL=false
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_REGION=me-central-1
+      - MINIO_BUCKETS=user-profiles,post-images,comment-attachments
+      - MINIO_PROFILES_BUCKET=user-profiles
+      - MINIO_POSTS_BUCKET=post-images
+      - MINIO_COMMENTS_BUCKET=comment-attachments
+      - REDIS_URL=redis://redis:6379
     depends_on:
+      - minio
       - redis
-      - kafka
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - USE_SSL=false
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
 
 volumes:
   mongo-data:
   postgres-data:
   neo4j-data:
   neo4j-logs:
+  minio-data:
