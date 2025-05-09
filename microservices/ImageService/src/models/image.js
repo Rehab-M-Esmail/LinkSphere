@@ -1,9 +1,8 @@
 const { error } = require("console");
-const minioClient = require("../config/db");
+const minioClient = require("../config/MinIoConfig");
 const dotenv = require("dotenv");
 dotenv.config();
 const multer = require("multer");
-
 const { v4: uuidv4 } = require("uuid");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -18,11 +17,11 @@ const policies = JSON.parse(fs.readFileSync('../config/bucket-policy.json',(erro
 */
 const buckets = ["user-profiles", "post-images", "comment-attachments"];
 class ImageModel {
-  ImageModel() {
+  constructor() {
     this.minioClient = minioClient;
     this.initBuckets();
     this.buckets = buckets;
-    this.applyPolicyByPattern();
+    //this.applyPolicyByPattern();
   }
   async initBuckets() {
     for (const bucket of buckets) {
@@ -54,8 +53,9 @@ async applyPolicyByPattern() {
 }
 */
   async uploadImage(bucketName, objectName, file) {
+    //console.log(this.minioClient);
     try {
-      await minioClient.PutObject(
+      await this.minioClient.putObject(
         bucketName,
         objectName,
         file.buffer,
@@ -68,7 +68,7 @@ async applyPolicyByPattern() {
           "x-amz-meta-file-id": uuidv4(),
         }
       );
-      console.log(`Uploaded ${filePath} to ${bucketName}/${objectName}`);
+      console.log(` photo uploaded to ${bucketName}/${objectName}`);
       return { success: true, path: `${bucketName}/${objectName}` };
     } catch (err) {
       console.error("Upload Error:", err);
@@ -77,7 +77,10 @@ async applyPolicyByPattern() {
   }
   async getImage(bucketName, objectName) {
     try {
-      const dataStream = await minioClient.getObject(bucketName, objectName);
+      const dataStream = await this.minioClient.getObject(
+        bucketName,
+        objectName
+      );
       return dataStream;
     } catch (err) {
       console.error("Get Error:", err);
@@ -136,7 +139,11 @@ async applyPolicyByPattern() {
 
   async listObjects(prefix = "", limit = 10, marker = "", bucketName) {
     console.log("Listing objects in bucket from imageModel:", bucketName);
-    const objectsStream = minioClient.listObjects(bucketName, prefix, true);
+    const objectsStream = this.minioClient.listObjects(
+      bucketName,
+      prefix,
+      true
+    );
     objectsStream.on("data", function (obj) {
       console.log(obj);
     });
@@ -181,7 +188,7 @@ async applyPolicyByPattern() {
 
   async deleteImage(bucketName, objectName) {
     try {
-      await minioClient.removeObject(bucketName, objectName);
+      await this.minioClient.removeObject(bucketName, objectName);
       console.log(`Deleted ${bucketName}/${objectName}`);
       return { success: true };
     } catch (err) {

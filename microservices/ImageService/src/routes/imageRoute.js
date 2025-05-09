@@ -13,6 +13,6 @@ const {
 router.post("/upload", upload.single("file"), uploadImage);
 router.get("/:objectName", getImage);
 router.delete("/delete/:objectName", deleteImage);
-router.get("/:bucketName", listObjects);
+router.get("/buckets", listObjects);
 
 module.exports = router;

@@ -7,9 +7,9 @@ const connectToDatabase = require("./config/db");
 connectToDatabase();
 const app = express();
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use("/", imageRoute);
-app.use(express.json());
+//app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const PORT = process.env.IMAGE_SERVCE_PORT || 9000;
+const PORT = process.env.IMAGE_SERVCE_PORT || 6000;
 app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));

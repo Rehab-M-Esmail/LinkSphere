@@ -1,12 +1,13 @@
 const imageModel = require("../models/image");
 const { stack } = require("../routes/imageRoute");
+const { v4: uuidv4 } = require("uuid");
 class ImageController {
   async uploadImage(req, res) {
     //The object name will be the postId concatenated with comment or post to identify the image
     //The bucket name will be the userId + profileImage for profile images
     const { bucketName, user_Id } = req.body;
     console.log("Bucket name:", bucketName);
-    const objectName = `${user_Id}${req.file.originalname}`;
+    var objectName = `${user_Id}${req.file.originalname}`;
     const file = req.file;
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -18,13 +19,13 @@ class ImageController {
     }
     const fileID = uuidv4();
     switch (bucketName) {
-      case user - profiles:
+      case "user-profiles":
         objectName = `${user_Id}profileImage/${fileID}-${file.originalname}`;
         break;
-      case post - images:
+      case "post-images":
         objectName = `${user_Id}postImage/${fileID}-${file.originalname}`;
         break;
-      case comment - attachments:
+      case "comment-attachments":
         objectName = `${user_Id}commentAttachment/${fileID}-${file.originalname}`;
         break;
       default:
@@ -77,7 +78,7 @@ class ImageController {
     }
   }
   async listObjects(req, res) {
-    const { bucketName } = req.params.bucketName;
+    const { bucketName } = req.body.bucketName;
     console.log("Listing objects in bucket:", bucketName);
     try {
       const objects = await imageModel.listObjects(bucketName);
