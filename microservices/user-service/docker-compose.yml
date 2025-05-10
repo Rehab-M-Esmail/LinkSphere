@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  userservice:
+    build: .
+    # container_name: userService
+    ports:
+      - "3002:3002"
+    environment:
+      - USER_SERVICE_PORT=3002
+    depends_on:
+      - postgres
+      - redis
+    
+  postgres:
+    image: "postgres:15-alpine"
+    # container_name: postgres
+    ports:  
+      - "5433:5432"
+    environment:
+      - DB_USER=postgres
+      - DB_HOST=postgres
+      - DB_NAME=link_sphere
+      - POSTGRES_PASSWORD=postgres
+      - DB_PORT=5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+    driver: local

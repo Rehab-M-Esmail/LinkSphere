@@ -21,7 +21,10 @@ describe("User Service", () => {
   });
 
   it("should get user profile with valid token", async () => {
-    const response = await axios.get(`${__BASE_URL__}/users/me`);
+    const response = await axios.get(
+      `http://localhost:3002/auth/register`,
+      testUser
+    );
 
     expect(response.status).toBe(200);
     expect(response.data.id).toBe(testUser.id);
