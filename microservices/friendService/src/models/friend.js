@@ -65,7 +65,7 @@ class FriendModel {
          RETURN friend.userId AS userId`,
           { userId }
         );
-        console.log("Query Result:", result.records);
+        //console.log("Query Result:", result.records);
         return result.records.map((record) => record.get("userId"));
       });
       return friends;
@@ -102,17 +102,14 @@ class FriendModel {
     // userId=String(userId);
     // console.log(typeof userId);
     userId = Number(userId);
-    console.log("Getting user by ID:", userId);
+    //console.log("Getting user by ID:", userId);
     try {
       // userId = String(userId).trim(); Failed to solve the issue
       const result = await session.run(
         `MATCH (u:User {userId: $userId}) RETURN u`,
         { userId }
       );
-      console.log(
-        "Query Result for finding user:",
-        result.records.map((record) => record.get("u"))
-      );
+      //console.log("Query Result for finding user:", result.records.map((record) => record.get("u")));
       return result.records.length > 0 ? result.records[0].get("u") : null;
     } finally {
       await session.close();

@@ -1,6 +1,34 @@
 const axios = require("axios");
 const redisClient = require("../config/cache");
+const CircuitBreaker = require("opossum");
+const axiosRequest = async (url) => {
+  return axios.get(url);
+};
 
+const breaker = new CircuitBreaker(axiosRequest, {
+  timeout: 5000, // Timeout for requests (5 seconds)
+  errorThresholdPercentage: 50, // Trip the circuit if 50% of requests fail
+  resetTimeout: 10000, // Wait 10 seconds before trying again
+});
+breaker.fallback(() => {
+  console.log("Circuit breaker fallback triggered");
+  return []; // Return an empty array as a fallback
+});
+breaker.on("success", () => {
+  console.log(`Circuit breaker success touching this request ${axiosRequest}`);
+});
+breaker.on("failure", () => {
+  console.log("Circuit breaker failure");
+});
+breaker.on("timeout", () => {
+  console.log("Circuit breaker timeout");
+});
+breaker.on("open", () => {
+  console.log("Circuit breaker open");
+});
+breaker.on("close", () => {
+  console.log("Circuit breaker closed");
+});
 /*
 Algorithm for Generating Personalized Feed:
 1. Fetch the user's preferences from the database.
@@ -73,7 +101,7 @@ const GetRandomAgeGroupPosts = async (req) => {
       return JSON.parse(cachedPosts);
     }
     console.log("Cache miss for age group posts");
-    const response = await axios.get(
+    const response = await breaker.fire(
       `${process.env.postServiceUrl}/post/${req.body.age}`
     );
     if (response.status !== 200) {
@@ -102,13 +130,18 @@ const GetRandomFriendsPosts = async (req) => {
   }
   console.log("Cache miss for friends posts");
   try {
-    const FriendsIds = await axios.get(
+    const FriendsIds = await breaker.fire(
       `http://localhost:7474/friend/${req.params.user_id}`
     );
+    const friendsArray = FriendsIds.data?.friends || [];
+    if (!Array.isArray(FriendsIds)) {
+      console.log("FriendsIds is not an array:", FriendsIds);
+      return [];
+    }
     //assuming that Id is the index of the user
     const friendsPosts = [];
-    for (const friendId of FriendsIds) {
-      const response = await axios.get(
+    for (const friendId of friendsArray) {
+      const response = await breaker.fire(
         `${process.env.postServiceUrl}/post/${friendId}/posts`
       );
       if (response.status == 200) {
