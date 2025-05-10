@@ -1,6 +1,6 @@
 const Post = require("../models/post");
-const producer = require("../config/kafkaProducer");
-const { publishEvent } = producer.publishEvent();
+//const producer = require("../../../kafka/kafkaProducer");
+//const { publishEvent } = producer.publishEvent();
 // Create a new post
 const createPost = async (req, res) => {
   try {
@@ -8,13 +8,13 @@ const createPost = async (req, res) => {
     const post = new Post({ userId, content, category });
     await post.save();
     // Publish the post creation event to Kafka
-    publishEvent("post-events", {
-      eventType: "POST_CREATED",
-      postId: post._id,
-      userId: post.userId,
-      content: post.content,
-      category: post.category,
-    });
+    // publishEvent("post-events", {
+    //   eventType: "POST_CREATED",
+    //   postId: post._id,
+    //   userId: post.userId,
+    //   content: post.content,
+    //   category: post.category,
+    // });
 
     // Send a response back to the client
     res.status(201).json(post);
@@ -172,12 +172,10 @@ const getPostsByCategory = async (req, res) => {
     }).sort({ createdAt: -1 }); // Sort by newest first
 
     if (posts.length === 0) {
-      return res
-        .status(200)
-        .json({
-          message: `No posts found in category: ${category}`,
-          posts: [],
-        });
+      return res.status(200).json({
+        message: `No posts found in category: ${category}`,
+        posts: [],
+      });
     }
 
     res.status(200).json({
