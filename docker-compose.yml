@@ -87,7 +87,7 @@ services:
     build: 
       context: ./microservices/friendService
     ports:
-      - "3003:3003"
+      - "3003:7474"
     environment:
       - FRIEND_SERVICE_PORT=3003
       - REDIS_URL=redis://redis:6379
