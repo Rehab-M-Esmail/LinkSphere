@@ -24,9 +24,9 @@ class RabbitMQProducer {
   async PublishMessage(req, res) {
     try {
       //const msg = req.body.message;
-      if (!this.channel) {
-        await this.setup();
-      }
+      //   if (!this.channel) {
+      //     await this.setup();
+      //   }
       const msg = req.body.message;
       if (!msg) {
         console.error("Message is required");
@@ -57,7 +57,7 @@ class RabbitMQProducer {
         Buffer.from(JSON.stringify(msg))
       );
       console.log(` Message sent successfully to queue ${queueName}:`);
-      await this.channel.close();
+      //await this.channel.close();
       return "Message sent successfully";
     } catch (ex) {
       console.error(ex);
