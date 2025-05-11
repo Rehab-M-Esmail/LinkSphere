@@ -1,20 +1,26 @@
 const Post = require("../models/post");
-//const producer = require("../../../kafka/kafkaProducer");
-//const { publishEvent } = producer.publishEvent();
+const RabbitMQProducer = require("../../RabbitMQ/producer");
 // Create a new post
 const createPost = async (req, res) => {
   try {
+    console.log(".......");
     const { userId, content, category } = req.body;
     const post = new Post({ userId, content, category });
     await post.save();
-    // Publish the post creation event to Kafka
-    // publishEvent("post-events", {
-    //   eventType: "POST_CREATED",
-    //   postId: post._id,
-    //   userId: post.userId,
-    //   content: post.content,
-    //   category: post.category,
-    // });
+    // Publish the post creation event to RabbitMQ
+    const producer = new RabbitMQProducer();
+    const result = await producer.PublishMessage({
+      body: {
+        message: {
+          eventType: "POST_CREATED",
+          userId: userId,
+          content: post.content,
+          category: post.category,
+        },
+        queue: "test_queue",
+      },
+    });
+    console.log("The result of producer", result);
 
     // Send a response back to the client
     res.status(201).json(post);

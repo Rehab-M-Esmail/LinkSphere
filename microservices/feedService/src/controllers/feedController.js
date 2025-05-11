@@ -1,6 +1,7 @@
 const axios = require("axios");
 const redisClient = require("../config/cache");
 const CircuitBreaker = require("opossum");
+const RabbitMQConsumer = require("../../../RabbitMQ/consumer");
 const axiosRequest = async (url) => {
   return axios.get(url);
 };
@@ -75,7 +76,7 @@ const generatePersonalizedFeed = async (req) => {
   const ageGroupPosts = await GetRandomAgeGroupPosts(req);
   //console.log('Generated Age Group Posts:', ageGroupPosts);
 
-  const friendsPosts = await GetRandomFriendsPosts(req);
+  const friendsPosts = await GetFriendsPosts(req);
   //console.log('Generated Friends Posts:', friendsPosts);
 
   const mixedPosts = [...ageGroupPosts, ...friendsPosts];
@@ -89,6 +90,21 @@ const generatePersonalizedFeed = async (req) => {
   });
 
   return mixedPosts;
+};
+//working as expected
+const GetConsumedPosts = async (friendList) => {
+  try {
+    const messages = await RabbitMQConsumer.setup("post-events");
+    // Filter messages to include only those from the user's friends
+    const friendPosts = messages.filter((message) =>
+      friendList.includes(message.userId)
+    );
+    console.log(friendPosts);
+    return friendPosts;
+  } catch (error) {
+    console.log("Error in GetConsumedPosts:", error.message);
+    return [];
+  }
 };
 //This function will get the posts of the users that are in the same group as the user
 // => function will be modified to allow passing age group as a parameter not just the age
@@ -121,7 +137,7 @@ const GetRandomAgeGroupPosts = async (req) => {
   }
 };
 //This function will get the posts of the friends of the user
-const GetRandomFriendsPosts = async (req) => {
+const GetFriendsPosts = async (req) => {
   const cacheKey = `friendsPosts:${req.params.user_id}`;
   const cachedPosts = await redisClient.get(cacheKey);
   if (cachedPosts) {
@@ -138,6 +154,7 @@ const GetRandomFriendsPosts = async (req) => {
       console.log("FriendsIds is not an array:", FriendsIds);
       return [];
     }
+    const consumed = await GetConsumedPosts(FriendsIds);
     //assuming that Id is the index of the user
     const friendsPosts = [];
     for (const friendId of friendsArray) {
@@ -155,10 +172,10 @@ const GetRandomFriendsPosts = async (req) => {
       EX: 3600,
     });
     console.log("Personalized feed cached successfully for key:", cacheKey);
-    return friendsPosts;
+    return [...friendsPosts, ...consumed];
     //return friendsPosts.map(post => post.content);
   } catch (error) {
-    console.log("Error from GetRandomFriendsPosts ", {
+    console.log("Error from GetFriendsPosts ", {
       message: error.message,
     });
     return [];

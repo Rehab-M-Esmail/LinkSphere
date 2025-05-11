@@ -58,17 +58,17 @@ class RabbitMQProducer {
       );
       console.log(` Message sent successfully to queue ${queueName}:`);
       await this.channel.close();
-      res.status(200).json({ status: "Message sent successfully" });
+      return "Message sent successfully";
     } catch (ex) {
       console.error(ex);
     }
   }
 }
 module.exports = RabbitMQProducer;
-const producer = new RabbitMQProducer();
-producer.PublishMessage({
-  body: {
-    message: { userId: 1, action: "add" },
-    queue: "test_queue",
-  },
-});
+// const producer = new RabbitMQProducer();
+// producer.PublishMessage({
+//   body: {
+//     message: { userId: 4, content: "This is a new added post" },
+//     queue: "test_queue",
+//   },
+// });

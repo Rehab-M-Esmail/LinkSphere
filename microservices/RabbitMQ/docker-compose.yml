@@ -1,5 +1,12 @@
 version: '3.8'
 services:
+
+  messagingservice:
+    build: ./RabbitMQ
+    ports: "8000:8000"
+    depends_on:
+      - rabbitmq
+
   rabbitmq:
     image: rabbitmq:4-management
     container_name: rabbitmq
