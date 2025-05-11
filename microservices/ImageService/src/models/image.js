@@ -27,7 +27,7 @@ class ImageModel {
     for (const bucket of buckets) {
       try {
         const exists = await minioClient.bucketExists(bucket);
-        if (!exists) await minioClient.makeBucket(bucket, "us-east-1");
+        if (!exists) await minioClient.makeBucket(bucket, "me-central-1");
         console.log(`Bucket ${bucket} ready.`);
       } catch (err) {
         console.error(`Error with bucket ${bucket}:`, err);
@@ -81,9 +81,10 @@ async applyPolicyByPattern() {
         bucketName,
         objectName
       );
+
       return dataStream;
     } catch (err) {
-      console.error("Get Error:", err);
+      console.error(" Error getting object from minio:", err);
       return null;
     }
 

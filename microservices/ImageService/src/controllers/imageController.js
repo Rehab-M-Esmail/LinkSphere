@@ -20,13 +20,13 @@ class ImageController {
     const fileID = uuidv4();
     switch (bucketName) {
       case "user-profiles":
-        objectName = `${user_Id}profileImage/${fileID}-${file.originalname}`;
+        objectName = `${user_Id}/profileImage/${fileID}-${file.originalname}`;
         break;
       case "post-images":
-        objectName = `${user_Id}postImage/${fileID}-${file.originalname}`;
+        objectName = `${user_Id}/postImage/${fileID}-${file.originalname}`;
         break;
       case "comment-attachments":
-        objectName = `${user_Id}commentAttachment/${fileID}-${file.originalname}`;
+        objectName = `${user_Id}/commentAttachment/${fileID}-${file.originalname}`;
         break;
       default:
         return res.status(400).json({ message: "Invalid bucket name" });
@@ -48,12 +48,12 @@ class ImageController {
     }
   }
   async getImage(req, res) {
-    const { bucketName, objectName } = req.params;
+    const { bucketName, objectName } = req.query;
     console.log("Fetching image from bucket:", bucketName);
     try {
       const dataStream = await imageModel.getImage(bucketName, objectName);
       if (dataStream) {
-        res.set("Content-Type", "image/jpg");
+        res.setHeader("Content-Type", "image/jpeg");
         dataStream.pipe(res);
       } else {
         res.status(404).json({ message: "Image not found" });
@@ -63,7 +63,7 @@ class ImageController {
     }
   }
   async deleteImage(req, res) {
-    const { bucketName, objectName } = req.params;
+    const { bucketName, objectName } = req.query;
     try {
       const result = await imageModel.deleteImage(bucketName, objectName);
       if (result.success) {
