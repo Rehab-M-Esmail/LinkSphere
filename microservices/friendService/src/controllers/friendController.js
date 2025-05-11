@@ -1,4 +1,5 @@
-const friend = require('../models/friend'); //This line will be changed to represent all types of relationships
+const friend = require("../models/friend"); //This line will be changed to represent all types of relationships
+
 /*
 Algorithm 
 1. Get all users IDs from the database and store them in a file
@@ -6,72 +7,68 @@ Algorithm
 2. Create node for each user
 3. Create edges between the users
 */
-const getFriends = async(req,res)=>
-{
-    const userId = Number(req.params.user_id);
-    //console.log(userId);
-    try {
-        const user1 = await friend.getUserById(userId);
-        console.log(user1);
-            if (!user1) {
-            return res.status(404).json({ error: 'One or both users not found' });
-        }
-        const friends = await friend.getFriends(userId);
-        console.log(friends);
-        if (!friends) {
-            return res.status(404).json({ error: 'No friends found' });
-        }
-        res.status(200).json(friends);
-    } catch (error) {
-        console.error('Error fetching friends:', error);
-        res.status(500).json({ error: 'Internal server error' });
+const getFriends = async (req, res) => {
+  const userId = Number(req.params.user_id);
+  //console.log(userId);
+  try {
+    const user1 = await friend.getUserById(userId);
+    //console.log(user1);
+    if (!user1) {
+      return res.status(404).json({ error: "One or both users not found" });
     }
-}
+    const friends = await friend.getFriends(userId);
+    //console.log(friends);
+    if (!friends) {
+      return res.status(404).json({ error: "No friends found" });
+    }
+    //console.log(typeof friends);
+    res.status(200).json(friends);
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 //This will be modified to have a switch case to add all types of relationships
 const addFriend = async (req, res) => {
-    const { userId1, userId2 } = req.body;
-    try {
-        // Check if both users exist in the database 
-        const [user1, user2] = await Promise.all([
-            friend.getUserById(userId1),
-            friend.getUserById(userId2)
-        ]);
-        if (!user1 || !user2) {
-            return res.status(404).json({ error: 'One or both users not found' });
-        }
-        await friend.addFriendship(userId1, userId2);
-        res.status(201).json({ message: 'Friendship created successfully' });
-    } catch (error) {
-        console.error('Error adding friend:', error);
-        res.status(500).json({ error: 'Internal server error' });
+  const { userId1, userId2 } = req.body;
+  try {
+    // Check if both users exist in the database
+    const [user1, user2] = await Promise.all([
+      friend.getUserById(userId1),
+      friend.getUserById(userId2),
+    ]);
+    if (!user1 || !user2) {
+      return res.status(404).json({ error: "One or both users not found" });
     }
-}
+    await friend.addFriendship(userId1, userId2);
+    res.status(201).json({ message: "Friendship created successfully" });
+  } catch (error) {
+    console.error("Error adding friend:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const removeFriend = async (req, res) => {
-        const { userId1, userId2 } = req.body;
-        //You should check if ids are different and not empty
-try {
-    
+  const { userId1, userId2 } = req.body;
+  //You should check if ids are different and not empty
+  try {
     //Need to check if the users exist in the database
-            const [user1, user2] = await Promise.all([
-            friend.getUserById(userId1),
-            friend.getUserById(userId2)
-        ]);
+    const [user1, user2] = await Promise.all([
+      friend.getUserById(userId1),
+      friend.getUserById(userId2),
+    ]);
 
-        if (!user1 || !user2) {
-            return res.status(404).json({ error: 'One or both users not found' });
-        }
-        await friend.removeFriendship(userId1, userId2);
-        res.status(200).json({ message: 'Friendship removed successfully' });
+    if (!user1 || !user2) {
+      return res.status(404).json({ error: "One or both users not found" });
     }
-catch (error) {
-    console.error('Error removing friend:', error);
-    res.status(500).json({ error: 'Internal server error' });
-    
-}
-}
+    await friend.removeFriendship(userId1, userId2);
+    res.status(200).json({ message: "Friendship removed successfully" });
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 //To be implemented later msh fadya ll high expectations bt3ty
-
 
 /* const addsibling = async (req, res) => {
     const { userId1, userId2 } = req.body;
@@ -154,13 +151,12 @@ const removeMarriageRelationship = async (req, res) => {
     }
 }
  */
-const getRecommendations = async (req, res) => {
-}
-const getFriendById = async (req, res) => { }
+const getRecommendations = async (req, res) => {};
+const getFriendById = async (req, res) => {};
 module.exports = {
-    getFriends,
-    addFriend,
-    removeFriend,
-    getFriendById,
-    getRecommendations,
-}
+  getFriends,
+  addFriend,
+  removeFriend,
+  getFriendById,
+  getRecommendations,
+};
