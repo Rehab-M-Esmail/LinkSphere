@@ -5,47 +5,39 @@ class RabbitMQConsumer {
   constructor() {
     this.connection = null;
     this.channel = null;
+    this.init();
+  }
+  async init() {
+    const amqpServer = config.rabbitMQ.url;
+    this.connection = await amqp.connect(amqpServer, {
+      clientProperties: { connection_name: "LinkSphere Consumer" },
+    });
+    this.channel = await this.connection.createChannel();
+    console.log("RabbitMQ Consumer connected");
   }
   async setup(queue) {
     try {
-      const amqpServer = config.rabbitMQ.url;
-      this.connection = await amqp.connect(amqpServer, {
-        clientProperties: { connection_name: "LinkSphere Consumer" },
-      });
-      this.channel = await this.connection.createChannel();
-      console.log("RabbitMQ Consumer connected");
-
       // Ensure the queue exists
       await this.channel.assertQueue(queue, {
         durable: true,
       });
-
       console.log(`Waiting for messages in queue: ${queue}`);
 
       // Array to store messages
       const messages = [];
-
-      // Consume messages from the queue
-      this.channel.consume(
+      const message = await this.channel.consume(
         queue,
         (message) => {
-          if (message !== null) {
+          if (message != null) {
             const msgContent = message.content.toString();
-            console.log(`Received message: ${msgContent}`);
-
-            // Add the message to the array
-            messages.push(JSON.parse(msgContent));
-
-            // Acknowledge the message
-            this.channel.ack(message);
+            messages.push({ content: JSON.parse(msgContent) });
           }
         },
-        { noAck: false } // Ensure messages are acknowledged
+        { noAck: false }
       );
-      // Wait for a short period to collect messages, then send them in the response
-      setTimeout(() => {
-        console.log("Sending collected messages in response:", messages);
-      }, 2000);
+
+      console.log(`Retrieved ${messages.length} messages from queue: ${queue}`);
+      return messages;
     } catch (error) {
       console.error("Error setting up RabbitMQ Consumer:", error);
     }

@@ -54,6 +54,7 @@ async applyPolicyByPattern() {
 */
   async uploadImage(bucketName, objectName, file) {
     //console.log(this.minioClient);
+    console.log("In image Model");
     try {
       await this.minioClient.putObject(
         bucketName,

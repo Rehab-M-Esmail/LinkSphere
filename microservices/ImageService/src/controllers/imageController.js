@@ -4,11 +4,17 @@ const { v4: uuidv4 } = require("uuid");
 class ImageController {
   async uploadImage(req, res) {
     //The object name will be the postId concatenated with comment or post to identify the image
-    //The bucket name will be the userId + profileImage for profile images
-    const { bucketName, user_Id } = req.body;
+    //The bucket name will be the userId/ profileImage for profile images
+    console.log("Ya mosahl el 7al in Image controller");
+    const { user_Id, bucketName, post_Id } = req.body;
+    //console.log(typeof user_Id);
     console.log("Bucket name:", bucketName);
-    var objectName = `${user_Id}${req.file.originalname}`;
     const file = req.file;
+    const fileID = uuidv4();
+    //Here i'm handling posts attached with images
+    // If there's a post_ID it will be the file Id to be easy to retreive it
+    if (post_Id) fileID = post_Id;
+    var objectName;
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
@@ -17,19 +23,35 @@ class ImageController {
         .status(400)
         .json({ message: "Bucket name and user ID are required" });
     }
-    const fileID = uuidv4();
-    switch (bucketName) {
-      case "user-profiles":
-        objectName = `${user_Id}/profileImage/${fileID}-${file.originalname}`;
+    //Handling File Extension
+    let fileExtension = ".unknown";
+    switch (file.mimetype) {
+      case "image/jpeg":
+      case "image/jpg":
+        fileExtension = ".jpg";
         break;
-      case "post-images":
-        objectName = `${user_Id}/postImage/${fileID}-${file.originalname}`;
-        break;
-      case "comment-attachments":
-        objectName = `${user_Id}/commentAttachment/${fileID}-${file.originalname}`;
+      case "image/png":
+        fileExtension = ".png";
         break;
       default:
-        return res.status(400).json({ message: "Invalid bucket name" });
+        // Handle other cases or keep the default ".unknown"
+        console.warn(`Unsupported mimetype: ${file.mimetype}`);
+        break;
+    }
+    console.log("File Extension", fileExtension);
+    switch (bucketName) {
+      case "user-profiles":
+        objectName = `${user_Id}/profileImage/${fileID}${fileExtension}`;
+        break;
+      case "post-images":
+        objectName = `${user_Id}/postImage/${fileID}${fileExtension}`;
+        break;
+      case "comment-attachments":
+        objectName = `${user_Id}/commentAttachment/${fileID}${fileExtension}`;
+        break;
+      //I need to handle invalid buckt name but how i can do
+      default:
+        //return res.status(400).json({ message: "Invalid bucket name" });
         break;
     }
     try {
@@ -87,6 +109,14 @@ class ImageController {
     } catch (error) {
       res.status(500).json({ message: "Error listing objects", error });
     }
+  }
+  async listObjectsWithPrefix(req, res) {
+    const { bucketName, prefix } = req.body;
+    const objects = await imageModel.listObjects(bucketName, prefix, false);
+    res.status(200).json(objects);
+  }
+  catch(error) {
+    res.status(500).json({ message: "Error listing objects", error });
   }
 
   //I think i need to add a function to return all images of a specific user
