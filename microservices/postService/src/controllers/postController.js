@@ -1,26 +1,51 @@
 const Post = require("../models/post");
-const RabbitMQProducer = require("../../RabbitMQ/producer");
+//const RabbitMQProducer = require("../../../RabbitMQ/producer");
+//const producer = new RabbitMQProducer();
+const axios = require("axios");
+const FormData = require("form-data");
+
 // Create a new post
+// -------------- What if we have a post attached with image and how we can retreive them together?-------------------
+/*
+1. Extract The post text data to be handled in the post database
+2. Return the post id to be used instead of randomly generated file id
+2. Call the Image service API with userId and post ID and BucketName as post-images
+
+-------------- How to retreive them together --------------------------------
+There's 2 approachs
+
+The first one
+1. Return The post data that's handeled by the post service
+2. Extract the post ID and then search in the buckets with that post ID 
+
+The seconde one
+1. Add a query in the request with boolean value that specifies if there's an image in the post
+2. If true then Extract the post ID 
+2. Call the Image endpoint to get that image with BucketName as post-images and abjectName constructed as user ID/profileImage/post_ID.jpeg 
+
+ */
 const createPost = async (req, res) => {
   try {
     console.log(".......");
     const { userId, content, category } = req.body;
+    console.log(typeof userId);
     const post = new Post({ userId, content, category });
     await post.save();
+
     // Publish the post creation event to RabbitMQ
-    const producer = new RabbitMQProducer();
-    const result = await producer.PublishMessage({
-      body: {
-        message: {
-          eventType: "POST_CREATED",
-          userId: userId,
-          content: post.content,
-          category: post.category,
-        },
-        queue: "test_queue",
-      },
-    });
-    console.log("The result of producer", result);
+
+    // const result = await producer.PublishMessage({
+    //   body: {
+    //     message: {
+    //       eventType: "POST_CREATED",
+    //       userId: userId,
+    //       content: post.content,
+    //       category: post.category,
+    //     },
+    //     queue: "test_queue",
+    //   },
+    // });
+    // console.log("The result of producer", result);
 
     // Send a response back to the client
     res.status(201).json(post);
@@ -38,6 +63,45 @@ const createPost = async (req, res) => {
   //   }
 };
 
+const ImageWithPost = async (req, res) => {
+  try {
+    console.log(".......");
+    const { userId, content, category } = req.body;
+    console.log(`type of userId in post controller${typeof userId}`);
+    const post = new Post({ userId, content, category });
+    console.log(post._id.toString());
+    await post.save();
+    const File = req.file;
+    console.log(File);
+    const user_Id = String(userId);
+    const formData = new FormData();
+    formData.append("user_Id", user_Id);
+    formData.append("bucketName", "post-images");
+    formData.append("file", req.file.buffer, req.file.originalname);
+    formData.append("post_Id", String(post._id.toString()));
+    console.log("Sending form data:", formData); // Debugging
+    console.log("Yarab");
+    await axios.post("http://localhost:6000/upload", formData, {
+      Headers: { ...formData.getHeaders() },
+    });
+    console.log("Image upload to upload service.");
+  } catch (error) {
+    console.log(error);
+  }
+};
+const getPostWithImage = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    await axios.get("http://localhost:6000/search", {
+      query: {
+        bucketName: "post-images",
+        prefix: `${json(post).user_Id}/postImage/${post._id.toString()}`, //wareny hat3mleha ezay ya 7elwa file Extension?
+      },
+    });
+  } catch (error) {
+    console.log("Error fetching post with image");
+  }
+};
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find();
@@ -53,6 +117,7 @@ const getPostById = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
+    //console.log(post);
     res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -204,4 +269,5 @@ module.exports = {
   getPostsByUserId,
   getPostsByKeyword,
   getPostsByCategory,
+  ImageWithPost,
 };
