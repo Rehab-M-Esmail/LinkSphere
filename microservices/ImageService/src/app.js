@@ -11,5 +11,5 @@ const app = express();
 app.use("/", imageRoute);
 //app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const PORT = process.env.IMAGE_SERVCE_PORT || 6000;
+const PORT = process.env.IMAGE_SERVCE_PORT || 6002;
 app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}`));
