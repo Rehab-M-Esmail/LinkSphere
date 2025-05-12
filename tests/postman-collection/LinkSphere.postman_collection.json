@@ -26,7 +26,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"rehab@gmail.com\",\n    \"password\": \"rahoba\" ,\n    \"name\": \"rehab\" ,\n    \"gender\":\"Female\",\n     \"preferences\":[\"Entertainment\",\"Technology\"],\n    \"date_of_birth\": \"2004/04/22\"\n}",
+					"raw": "{\n    \"email\":\"rehab8@gmail.com\",\n    \"password\": \"rahoba\" ,\n    \"name\": \"rehab\" ,\n    \"gender\":\"Female\",\n     \"preferences\":[\"Entertainment\",\"Technology\"],\n    \"date_of_birth\": \"2004/04/22\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -71,7 +71,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": " {\n    \"userId\": \"65d24f1a4f7d8e1b2c6a3b4a\",\n    \"content\": \"Exploring the new React compiler features\",\n    \"category\": \"Technology\"\n}",
+					"raw": " {\n    \"userId\": 12,\n    \"content\": \"ay 7aga bddsssd\",\n    \"category\": \"Technology\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -93,7 +93,7 @@
 			"response": []
 		},
 		{
-			"name": "register a user",
+			"name": "login a user",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -102,7 +102,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"user11@example.com\",\n    \"password\": \"password11\",\n    \"name\": \"Rahoba el lahloba\",\n    \"gender\": \"Female\",\n    \"preferences\": [\"photography\", \"Healthy Eating\"],\n    \"date_of_birth\": \"2000/9/11\"\n}",
+					"raw": "{\n    \"email\": \"user61@example.com\",\n    \"password\": \"password11\",\n    \"name\": \"Rahoba el lahloba a\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -110,7 +110,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3002/auth/register",
+					"raw": "http://localhost:3002/auth/login",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -118,7 +118,7 @@
 					"port": "3002",
 					"path": [
 						"auth",
-						"register"
+						"login"
 					]
 				}
 			},
@@ -158,9 +158,19 @@
 		},
 		{
 			"name": "Get all users Ids",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "http://localhost:3002/users/ids",
 					"protocol": "http",
@@ -263,7 +273,7 @@
 						},
 						{
 							"key": "user_Id",
-							"value": "1",
+							"value": "2",
 							"type": "text"
 						},
 						{
@@ -274,14 +284,337 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/upload",
+					"raw": "http://localhost:6000/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user's feed",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"page\":1,\n    \"limit\":3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/feed/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"feed",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user profile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user\":\n    {\n        \"id\":12\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/users/profile",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a photo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6000/?bucketName=user-profiles&objectName=1/profileImage/f4a0b882-1383-4e57-b52d-5e958935cb2c.jpg",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						""
+					],
+					"query": [
+						{
+							"key": "bucketName",
+							"value": "user-profiles"
+						},
+						{
+							"key": "objectName",
+							"value": "1/profileImage/f4a0b882-1383-4e57-b52d-5e958935cb2c.jpg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a photo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bucketName\":\"user-profiles\",\n    \"objectName\": \"1/profileImage/1e12b6f1-8e27-42ed-a6b0-88becfb87be4-Gop_jcOXcAA25Xa.jpeg\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6002/?bucketName=user-profiles&objectName=1/profileImage/3543cf55-8d96-46d3-8352-4fba2e280f02-Gop_jcOXcAA25Xa.jpeg",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6002",
+					"path": [
+						""
+					],
+					"query": [
+						{
+							"key": "bucketName",
+							"value": "user-profiles"
+						},
+						{
+							"key": "objectName",
+							"value": "1/profileImage/3543cf55-8d96-46d3-8352-4fba2e280f02-Gop_jcOXcAA25Xa.jpeg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add post with image",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NDEwODQ4MSwiZXhwIjoxNzQ0MTEyMDgxfQ.r01x2PG-Uo7Q7kTAdcOEXEedjsWijTPLr0Nv1UwAQYw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ZEWAIL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "userId",
+							"value": "9",
+							"type": "text"
+						},
+						{
+							"key": "content",
+							"value": "ay 7aga",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "Science",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "postman-cloud:///1f02b966-50b8-4d30-ab45-ccc54de0f230"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/post/postImage",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
-						"upload"
+						"post",
+						"postImage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user's profile",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/users/profile",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a post by its ID",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/post/6820a67066107932289c635e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"post",
+						"6820a67066107932289c635e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all objects in a bucket",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bucketName\":\"user-profiles\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/buckets",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"buckets"
 					]
 				}
 			},
