@@ -1,4 +1,8 @@
-# To run the Feed service
+#Feed Service
+
+## This service is responsible for handling feed generation for users
+
+### To run the Feed service
 
 ```sh
 cd feedService

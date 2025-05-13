@@ -42,7 +42,7 @@ Algorithm for Generating Personalized Feed:
 5. Return the paginated posts to the client.
 6. Implement caching for frequently accessed posts to improve performance.
 */
-
+// Will be modified to add function to get random public posts
 //This function will generate the personalized feed for the user by mixing the posts of the user's friends, users that are in the same group, and different gender
 
 const getpaginatedPosts = async (req, res) => {

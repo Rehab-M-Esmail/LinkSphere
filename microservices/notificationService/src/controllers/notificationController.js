@@ -1,4 +1,4 @@
-const Notification = require('../models/notificationModel');
+const Notification = require("../models/notificationModel");
 
 exports.createNotification = async (req, res) => {
   const notification = await Notification.create(req.body);
@@ -11,7 +11,11 @@ exports.getNotifications = async (req, res) => {
 };
 
 exports.markAsRead = async (req, res) => {
-  const updated = await Notification.findByIdAndUpdate(req.params.id, { isRead: true }, { new: true });
+  const updated = await Notification.findByIdAndUpdate(
+    req.params.id,
+    { isRead: true },
+    { new: true }
+  );
   res.status(200).json(updated);
 };
 
