@@ -20,9 +20,12 @@
     "neo4j-driver": "^5.28.1",
     "pg": "^8.15.6",
     "redis": "^5.0.1",
-    "supertest": "^7.1.0"
+    "supertest": "^7.1.1"
   },
   "dependencies": {
+    "express": "^5.1.0",
+    "google-auth-library": "^9.15.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.2"
   }
 }

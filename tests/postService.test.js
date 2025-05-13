@@ -1,5 +1,5 @@
 const request = require("supertest");
-const Post = require("../../microservices/postService/src/models/post");
+const Post = require("../microservices/postService/src/models/post");
 const mongoose = require("mongoose");
 
 const POST_SERVICE_URL = "http://localhost:3000";
