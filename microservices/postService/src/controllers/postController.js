@@ -3,6 +3,16 @@ const Post = require("../models/post");
 //const producer = new RabbitMQProducer();
 const axios = require("axios");
 const FormData = require("form-data");
+import { GoogleGenAI } from "@google/genai";
+import express from "express";
+import cors from "cors";
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+const ai = new GoogleGenAI({
+  apiKey: "Add your API key here",
+});
 
 // Create a new post
 // -------------- What if we have a post attached with image and how we can retreive them together?-------------------
@@ -27,7 +37,8 @@ The seconde one
 const createPost = async (req, res) => {
   try {
     console.log(".......");
-    const { userId, content, category } = req.body;
+    const { userId, content } = req.body;
+    const category = categorization(content);
     console.log(typeof userId);
     const post = new Post({ userId, content, category });
     await post.save();
@@ -62,7 +73,21 @@ const createPost = async (req, res) => {
   //     res.status(400).json({ error: err.message });
   //   }
 };
-
+const categorization = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    console.log(`prompt is ${prompt}`);
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `Give me only one word describing the category of this post from this list or give me a new suitable one ${prompt}`,
+    });
+    console.log(`response is ${response.text}`);
+    res.json({ response: response.text });
+  } catch (error) {
+    console.error("Error in categorization:", error);
+    res.status(500).json({ message: "Error in categorization" });
+  }
+};
 const ImageWithPost = async (req, res) => {
   try {
     console.log(".......");
@@ -270,4 +295,5 @@ module.exports = {
   getPostsByKeyword,
   getPostsByCategory,
   ImageWithPost,
+  categorization,
 };
