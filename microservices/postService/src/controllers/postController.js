@@ -3,6 +3,16 @@ const Post = require("../models/post");
 //const producer = new RabbitMQProducer();
 const axios = require("axios");
 const FormData = require("form-data");
+const { GoogleGenAI } = require("@google/genai");
+const express = require("express");
+//import cors from "cors";
+const app = express();
+app.use(express.json());
+//app.use(cors());
+
+const ai = new GoogleGenAI({
+  apiKey: "Add your API key here",
+});
 
 // Create a new post
 // -------------- What if we have a post attached with image and how we can retreive them together?-------------------
@@ -27,8 +37,9 @@ The seconde one
 const createPost = async (req, res) => {
   try {
     console.log(".......");
-    const { userId, content, category } = req.body;
-    console.log(typeof userId);
+    const { userId, content } = req.body;
+    const category = await categorization(req);
+    // console.log(typeof userId);
     const post = new Post({ userId, content, category });
     await post.save();
 
@@ -62,7 +73,32 @@ const createPost = async (req, res) => {
   //     res.status(400).json({ error: err.message });
   //   }
 };
-
+const categorization = async (req, res) => {
+  try {
+    const categories = [
+      "Technology",
+      "Health & Fitness",
+      "Business",
+      "Food & Cooking",
+      "Science",
+      "Art & Design",
+      "Travel",
+      "Sports",
+      "Education",
+    ];
+    const { content } = req.body;
+    console.log(`prompt is ${content}`);
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `Give me only one word describing the category of this post from this list ${categories} or give me a new suitable one ${content}`,
+    });
+    console.log(`response is ${response.text}`);
+    return response.text.trim();
+  } catch (error) {
+    console.error("Error in categorization:", error);
+    return "Uncategorized"; // Return a default category in case of error
+  }
+};
 const ImageWithPost = async (req, res) => {
   try {
     console.log(".......");
@@ -270,4 +306,5 @@ module.exports = {
   getPostsByKeyword,
   getPostsByCategory,
   ImageWithPost,
+  categorization,
 };

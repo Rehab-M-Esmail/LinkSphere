@@ -19,6 +19,34 @@ services:
       - redis
       - postservice
       - userservice
+  feedservice2:
+    build:
+      context: ./feedService
+    container_name: feedService
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI_Feed=mongodb://mongo:27017/feedService
+      - MONGO_DB_Feed=feedService
+      - postServiceUrl=http://postService:3000
+      - userServiceUrl=http://userService:3002
+      - FEED_SERVICE_PORT=3001
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+      - postservice
+      - userservice
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - feedservice
+      - feedservice2
 
   mongo:
     image: mongo:4.4
