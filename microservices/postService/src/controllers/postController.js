@@ -3,12 +3,12 @@ const Post = require("../models/post");
 //const producer = new RabbitMQProducer();
 const axios = require("axios");
 const FormData = require("form-data");
-import { GoogleGenAI } from "@google/genai";
-import express from "express";
-import cors from "cors";
+const { GoogleGenAI } = require("@google/genai");
+const express = require("express");
+//import cors from "cors";
 const app = express();
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
 
 const ai = new GoogleGenAI({
   apiKey: "Add your API key here",
@@ -38,8 +38,8 @@ const createPost = async (req, res) => {
   try {
     console.log(".......");
     const { userId, content } = req.body;
-    const category = categorization(content);
-    console.log(typeof userId);
+    const category = await categorization(req);
+    // console.log(typeof userId);
     const post = new Post({ userId, content, category });
     await post.save();
 
@@ -75,17 +75,28 @@ const createPost = async (req, res) => {
 };
 const categorization = async (req, res) => {
   try {
-    const { prompt } = req.body;
-    console.log(`prompt is ${prompt}`);
+    const categories = [
+      "Technology",
+      "Health & Fitness",
+      "Business",
+      "Food & Cooking",
+      "Science",
+      "Art & Design",
+      "Travel",
+      "Sports",
+      "Education",
+    ];
+    const { content } = req.body;
+    console.log(`prompt is ${content}`);
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
-      contents: `Give me only one word describing the category of this post from this list or give me a new suitable one ${prompt}`,
+      contents: `Give me only one word describing the category of this post from this list ${categories} or give me a new suitable one ${content}`,
     });
     console.log(`response is ${response.text}`);
-    res.json({ response: response.text });
+    return response.text.trim();
   } catch (error) {
     console.error("Error in categorization:", error);
-    res.status(500).json({ message: "Error in categorization" });
+    return "Uncategorized"; // Return a default category in case of error
   }
 };
 const ImageWithPost = async (req, res) => {

@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
-const postController = require("../controllers/postController");
+const postController = require("../controllers/postController.js");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 router.get("/", postController.getAllPosts); //Tested successfully
@@ -16,5 +16,4 @@ router.get("/:userId/posts", postController.getPostsByUserId); //Tested successf
 router.get("/search/keyword", postController.getPostsByKeyword);
 router.post("/postImage", upload.single("file"), postController.ImageWithPost);
 router.get("/search/category/:category", postController.getPostsByCategory);
-
 module.exports = router;
