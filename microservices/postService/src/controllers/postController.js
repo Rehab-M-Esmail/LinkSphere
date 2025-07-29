@@ -90,10 +90,18 @@ const categorization = async (req, res) => {
     console.log(`prompt is ${content}`);
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
-      contents: `Give me only one word describing the category of this post from this list ${categories} or give me a new suitable one ${content}`,
+      contents: `Give me only one word describing the category of this post from this list ${categories} or give me a new suitable category ${content}`,
     });
-    console.log(`response is ${response.text}`);
-    return response.text.trim();
+    const modelCategory = response.text.trim();
+    console.log(`response is ${modelCategory}`);
+    const exists = categories.some(
+      (cat) => cat.toLowerCase() === modelCategory.toLowerCase()
+    );
+    if (!exists) {
+      categories.push(modelCategory);
+      console.log(`Added new category ${modelCategory}`);
+    }
+    return modelCategory;
   } catch (error) {
     console.error("Error in categorization:", error);
     return "Uncategorized"; // Return a default category in case of error
