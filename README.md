@@ -45,6 +45,7 @@ LinkSphere is built as a collection of loosely coupled microservices that commun
 ### Prerequisites
 *   Docker & Docker Compose
 *   Node.js (v18+)
+*   Go (v1.2)
 
 ### Running with Docker Compose (Recommended)
 
